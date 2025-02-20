@@ -3,3 +3,5 @@
 - The physics of Bowling: https://www.real-world-physics-problems.com/physics-of-bowling.html#:~:text=The%20optimal%20trajectory%20of%20a,the%20pins%20are%20knocked%20down.
 
 - tennis project: https://github.com/ArtLabss/tennis-tracking
+
+- volley project: https://github.com/LorenzoCastiglia/sport-events

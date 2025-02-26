@@ -1,6 +1,7 @@
+
 TRAIETTORIA:
 - detection pista
-    ipotesi: si vede almeno all'inizio, aggiungere video con zoom
+    ipotesi: si vede almeno all'inizio (aggiungere video con zoom)
     soluzione: edge detection (canny), houghtransform; quando non si vede tutta ricostruire da dimensioni
 
 - ricostruzione pista:
@@ -10,14 +11,13 @@ TRAIETTORIA:
 
 - camera calibration? non serve perchè facciamo le cose indipendentemente dalla posizione della camera? potrebbe non servire
 
-
 - detection palla
     ipotesi: si vede sempre
-    soluzione: cnn o opencv (object detection)
+    soluzione: CNN o openCV (object detection)
 
 - traiettoria 
     ipotesi: inizia da x metri e finisce al primo birillo
-    soluzione: prendi il centro e lo proiettiamo sulla pista 
+    soluzione: prendere il centro e proiettarlo sulla pista 
 
 - capire quando la palla colpisce la pista
     ipotesi: studio su a che distanza la palla tocca terra in media
@@ -34,10 +34,9 @@ SPIN:
         -- convertire l'immagine della palla stretchadola in modo che sia su una sfera per confrontare meglio le immagini
         -- ricostruire tutta la palla prima}
 
-
-
 ________________________________________________________________________________________________________________
 
+INFORMAZIONI UTILI:
 📏 Dimensioni della pista da bowling
 •	Lunghezza totale: 18,29 m (60 piedi) dalla linea di fallo ai birilli.
 •	Larghezza: 1,0668 m (42 pollici).
@@ -50,3 +49,4 @@ ________________________________________________________________________________
 •  Peso: tra 2,72 kg (6 lb) e 7,26 kg (16 lb).
 •  Fori per le dita: personalizzabili, ma devono rispettare regole di simmetria.
 
+________________________________________________________________________________________________________________

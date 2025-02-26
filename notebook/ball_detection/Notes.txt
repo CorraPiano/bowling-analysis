@@ -1,0 +1,27 @@
+To visualize and detect the trajectory of a bowling ball from a video
+
+1. Preprocessing the Video
+    - Use OpenCV (cv2) to read frames from the video.
+    - Convert frames to grayscale and apply filtering to reduce noise.
+
+2. Object Detection (Ball Tracking)
+    Multiple techniques to detect the bowling ball:
+    A. Background Subtraction
+        - If the background is mostly static, use cv2.createBackgroundSubtractorMOG2().
+        - This helps to extract moving objects (the ball).
+    B. Color-Based Detection (If Ball Has a Distinct Color)
+        - Convert the frame to HSV color space.
+        - Use cv2.inRange() to create a mask for the ball's color.
+    C. Hough Circle Transform (For Spherical Objects)
+        - Use cv2.HoughCircles() to detect circular shapes.
+    D. Deep Learning-Based Detection
+        - If the ball is not easily detected with the above methods, you can use a pre-trained YOLO or SSD object detection model.
+
+3. Tracking the Ball's Trajectory
+    Once the ball is detected in each frame:
+        - Store its (x, y) coordinates over time.
+        - Use matplotlib to visualize the trajectory.
+
+4. Curve Fitting for Smooth Trajectory
+    - Use numpy.polyfit() to fit a curve (e.g., quadratic fit) to the detected trajectory.
+    - Overlay the predicted trajectory on the video frames.

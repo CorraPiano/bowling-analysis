@@ -1,24 +1,38 @@
 TRAIETTORIA:
-- detection pista, hp si vede bene la pista. Dobbiamo scegliere i video senza zoom?
-- camera calibration? non serve perchè facciamo le cose indipendentemente dalla posizione della camera?
-- ricostruzione pista -> guarda i triangolini (sfruttando la conoscenza delle dimensioni)
-- detection palla -> opencv o cnn, detection del cerchio. object detection più veloce di segmentation
-- traiettoria -> del punto di contatto (il più basso)-- prendi il centro, 
-- capire quando la palla colpisce la pista -> approccio cinematico o cv? cambiamento di velocità vettore
-        farlo da 2 metri in poi (fai statistica di quando tocca terra)
+- detection pista
+    ipotesi: si vede almeno all'inizio, aggiungere video con zoom
+    soluzione: edge detection (canny), houghtransform; quando non si vede tutta ricostruire da dimensioni
+
+- ricostruzione pista:
+    ipotesi: si vedono i triangolini
+    solzione: stratified reconstruction + size reconstruction
+                con: l_inf da linee della pista e shape recontruction con i triangoli e linee della pista (dimensioni note)
+
+- camera calibration? non serve perchè facciamo le cose indipendentemente dalla posizione della camera? potrebbe non servire
+
+
+- detection palla
+    ipotesi: si vede sempre
+    soluzione: cnn o opencv (object detection)
+
+- traiettoria 
+    ipotesi: inizia da x metri e finisce al primo birillo
+    soluzione: prendi il centro e lo proiettiamo sulla pista 
+
+- capire quando la palla colpisce la pista
+    ipotesi: studio su a che distanza la palla tocca terra in media
+    soluzione: quando la palla va in giù non tocca terra, quando va in su calcoliamo da x metri in poi
+                (cambiamento di velocità vettore)
 
 SPIN:
-- capire come ruota da come cambia i disegno? approccio cv
-    a partire dalla palla isolata:
-    -- convertire l'immagine della palla stretchadola in modo che sia su una sfera per confrontare meglio le immagini
-    -- ricostruire tutta la palla prima
+    ipotesi: texture particolare
+    soluzione: optical flow senza isolare la palla
+    note: se fatto con i buchi non è necesassio farlo ad ogni frame
 
-
-optical flow
-non in tutti i punti
-
-non isolare la palla
-
+        {- capire come ruota da come cambia i disegno? approccio cv
+        a partire dalla palla isolata:
+        -- convertire l'immagine della palla stretchadola in modo che sia su una sfera per confrontare meglio le immagini
+        -- ricostruire tutta la palla prima}
 
 
 
@@ -36,8 +50,3 @@ ________________________________________________________________________________
 •  Peso: tra 2,72 kg (6 lb) e 7,26 kg (16 lb).
 •  Fori per le dita: personalizzabili, ma devono rispettare regole di simmetria.
 
-
-soluzione: valutare la dimensione della palla rispetto a quella che dovrebbe avere se toccasse terra in quel punto? forse troppo rumoroso
-oppure: quando la velocità verticale è 0? 
-
-note: la pista finisce al primo birillo (prendere dimensioni giuste)

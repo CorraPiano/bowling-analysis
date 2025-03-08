@@ -1,8 +1,14 @@
 - WASB for ball detection: https://github.com/nttcom/wasb-sbdt
 
 - OpenCV for Ball detection: https://www.youtube.com/watch?v=RaCwLrKuS1w&ab_channel=CodeSavant
-                             https://github.com/Practical-CV/Color-Based-Ball-Tracking-With-OpenCV
                              https://pyimagesearch.com/2015/09/14/ball-tracking-with-opencv/
+
+- Object tracking: https://github.com/murthylab/pybmt
+                   https://pyimagesearch.com/2018/07/30/opencv-object-tracking/
+                   https://www.analyticsvidhya.com/blog/2020/03/ball-tracking-cricket-computer-vision/
+                   https://github.com/uditarora/cricket-umpire-assistance
+
+- OpticalFlow: https://docs.opencv.org/3.4/d4/dee/tutorial_optical_flow.html
 
 - The physics of Bowling: https://www.real-world-physics-problems.com/physics-of-bowling.html#:~:text=The%20optimal%20trajectory%20of%20a,the%20pins%20are%20knocked%20down.
 

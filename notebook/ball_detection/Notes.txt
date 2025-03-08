@@ -25,3 +25,31 @@ To visualize and detect the trajectory of a bowling ball from a video
 4. Curve Fitting for Smooth Trajectory
     - Use numpy.polyfit() to fit a curve (e.g., quadratic fit) to the detected trajectory.
     - Overlay the predicted trajectory on the video frames.
+
+___________________________________________________________________________________________________________________________________________
+
+
+| Feature                     | OpenCV                               | CNN                                 |
+|-----------------------------|--------------------------------------|-------------------------------------|
+| **Speed**                   | ✅ Faster on CPU                     | ❌ Slower without GPU              |
+| **Accuracy**                | ❌ Sensitive to noise                | ✅ More robust to variations       |
+| **Setup Complexity**        | ✅ No training needed                | ❌ Requires dataset & training     |
+| **Lighting Variance**       | ❌ Affected by shadows & reflections | ✅ More resilient                  |
+| **Real-Time Performance**   | ✅ Works well on low-power devices   | ✅ If optimized with TensorRT/ONNX |
+| **Robustness to Occlusion** | ❌ Fails easily                      | ✅ Handles occlusion better        |
+| **Customizability**         | ✅ Easy to tweak parameters          | ❌ Harder to interpret results     |
+
+- If you need a quick, CPU-friendly, and easily interpretable solution:
+    OpenCV (edge detection, background subtraction, Hough Circles, or simple tracking).  
+- If you need high accuracy and robustness to lighting & occlusions:
+    CNN-based object detection (YOLO, SSD, Faster R-CNN).  
+
+___________________________________________________________________________________________________________________________________________
+
+Hybrid Approach (Best of Both Worlds)
+1. **Use OpenCV for Fast Preprocessing**  
+   - Apply background subtraction or edge detection to isolate regions of interest.  
+2. **Use CNN Only for Final Detection**  
+   - Instead of running YOLO on the full frame, run it only on extracted regions to speed up processing.  
+3. **Tracking with OpenCV (Kalman Filter or Optical Flow)**  
+   - Reduce redundant CNN calls by using object tracking after initial detection.  

@@ -15,3 +15,10 @@
 - tennis project: https://github.com/ArtLabss/tennis-tracking
 
 - volley project: https://github.com/LorenzoCastiglia/sport-events
+
+=================================================================================================================
+
+UTILITY:
+
+- Python and IPython: https://ipython.readthedocs.io/en/stable/interactive/magics.html
+                      https://www.youtube.com/watch?v=3q80zPZyyyM&ab_channel=technologyCult

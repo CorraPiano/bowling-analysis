@@ -1,0 +1,10 @@
+
+STARTING POINT OF THE TRAJECTORY
+Remember that I have to track the ball from the point it touches the lane, solutions:
+- Start to print the trajectory from the a certain point after the lane.
+- Start when I have noticed n consecutive frames that have similar coordinates.
+
+CLEAR TRAJECTORY
+Here I have only to allow positions of the ball that have coordinates not so mutch different, solutions are:
+- Take only positions that are near or in the bowling lane
+- Take a point from which the position of the ball cannot differ to mutch from the previous iteration.

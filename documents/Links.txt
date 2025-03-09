@@ -9,6 +9,9 @@
                    https://github.com/uditarora/cricket-umpire-assistance
 
 - OpticalFlow: https://docs.opencv.org/3.4/d4/dee/tutorial_optical_flow.html
+               https://mpolinowski.github.io/docs/IoT-and-Machine-Learning/ML/2021-12-10--opencv-optical-flow-tracking/2021-12-10/
+               https://viso.ai/deep-learning/optical-flow/
+               https://medium.com/thedeephub/object-tracking-and-path-mapping-using-lucas-kanade-optical-flow-in-opencv-2ea018e391d4
 
 - The physics of Bowling: https://www.real-world-physics-problems.com/physics-of-bowling.html#:~:text=The%20optimal%20trajectory%20of%20a,the%20pins%20are%20knocked%20down.
 

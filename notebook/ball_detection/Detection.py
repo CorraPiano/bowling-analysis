@@ -58,25 +58,23 @@ def warm_up_background_subtractor(cap: cv2.VideoCapture, bg_subtractor: cv2.Back
     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset to first frame
 
 
-def detect_and_draw_circles(frame: np.ndarray, fg_mask: np.ndarray):
+def detect_and_draw_circles(frame: np.ndarray, blurred: np.ndarray, total_frames: int, frame_count: int):
     """
     Detects circles using the Hough Transform and overlays them onto the frame.
     
     Parameters:
         frame (np.ndarray): Original frame.
-        fg_mask (np.ndarray): Foreground mask after background subtraction.
+        blurred (np.ndarray): Foreground mask after background subtraction.
     
     Returns:
         tuple: (Processed frame, detected circle coordinates or None)
     """
-    kernel = np.ones((5, 5), np.uint8)
-    fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_OPEN, kernel)
-    fg_mask = cv2.medianBlur(fg_mask, 5)
-    blurred = cv2.GaussianBlur(fg_mask, (9, 9), 2)
-    
+    min = int((total_frames - frame_count)*0.20 + 10) # TODO: change with more accuracy
+    max = int((total_frames - frame_count)*0.20 + 40) # TODO: change with more accuracy
+
     circles = cv2.HoughCircles(
         blurred, cv2.HOUGH_GRADIENT, dp=1.2, minDist=100,
-        param1=50, param2=30, minRadius=30, maxRadius=100
+        param1=50, param2=30, minRadius=min, maxRadius=max
     )
     
     output = frame.copy()
@@ -90,8 +88,62 @@ def detect_and_draw_circles(frame: np.ndarray, fg_mask: np.ndarray):
     
     return output, circle_coords
 
+def apply_absdiff(prev_frame: np.ndarray, frame: np.ndarray):
+    """
+    Applies absolute difference technique.
 
-def process_video(input_video: str, output_video: str, output_csv: str):
+    Returns:
+        bg_diff (np.ndarray): Processed frame
+    """
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
+
+    gray = cv2.GaussianBlur(gray, (5, 5), 0)
+    prev_gray = cv2.GaussianBlur(prev_gray, (5, 5), 0)
+
+    background = prev_gray.copy().astype("float")
+    bg_diff = cv2.absdiff(gray, cv2.convertScaleAbs(background))
+    
+    return bg_diff
+
+def apply_morphological_operations(fg_mask: np.ndarray):
+    """
+    Applies morphological operations to clean up the foreground mask.
+    
+    Parameters:
+        fg_mask (np.ndarray): Foreground mask after background subtraction.
+    
+    Returns:
+        blurred (np.ndarray): Processed frame
+    """
+    kernel = np.ones((5, 5), np.uint8)
+    fg_mask = cv2.morphologyEx(fg_mask, cv2.MORPH_OPEN, kernel)
+    fg_mask = cv2.medianBlur(fg_mask, 5)
+    blurred = cv2.GaussianBlur(fg_mask, (9, 9), 2)
+
+    return blurred
+
+def define_edges(blurred: np.ndarray, frame: np.ndarray):
+    """
+    Applies adaptive thresholding and edge detection.
+
+    Returns:
+        edges (np.ndarray): Processed frame
+    """
+    # Adaptive thresholding to highlight moving objects
+    _, newThresh = cv2.threshold(blurred, 30, 255, cv2.THRESH_BINARY)
+    blurred = cv2.GaussianBlur(newThresh, (15, 15), 0)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    masked_gray = cv2.bitwise_and(gray, gray, mask = newThresh)
+    edges = cv2.Canny(masked_gray, 50, 150)
+
+    return edges
+
+# ==============================================================================
+#                            VIDEO PROCESSING FUNCTIONS
+# ==============================================================================
+
+def process_video_with_background_subtractor(input_video: str, output_video: str, output_csv: str):
     """
     Processes an input video to detect and highlight moving circular objects, 
     and saves their center coordinates to a CSV file.
@@ -124,7 +176,9 @@ def process_video(input_video: str, output_video: str, output_csv: str):
                 break
             
             fg_mask = bg_subtractor.apply(frame)
-            processed_frame, circle_coords = detect_and_draw_circles(frame, fg_mask)
+            blurred = apply_morphological_operations(fg_mask)
+
+            processed_frame, circle_coords = detect_and_draw_circles(frame, blurred, total_frames, frame_count)
             out.write(processed_frame)
             
             x, y = circle_coords if circle_coords else (None, None)
@@ -137,6 +191,54 @@ def process_video(input_video: str, output_video: str, output_csv: str):
     out.release()
 
 
+def process_video_with_absdiff(input_video: str, output_video: str, output_csv: str):
+    """
+    Processes an input video to detect and highlight moving circular objects, 
+    and saves their center coordinates to a CSV file.
+    
+    Parameters:
+        input_video (str): Path to the input video.
+        output_video (str): Path to save the output video.
+        output_csv (str): Path to save the circle coordinates.
+    """
+    cap = cv2.VideoCapture(input_video)
+    if not cap.isOpened():
+        print("Error: Could not open video.")
+        return
+    
+    out = setup_output_video(cap, output_video)
+
+    frame_count = 0
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    with open(output_csv, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Frame", "X", "Y"])  # Write CSV header
+    
+        while frame_count < total_frames - 1:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_count)
+            prev_ret, prev_frame = cap.read()
+            ret, frame = cap.read()
+            if not prev_ret or not ret:
+                print("Error: Could not read frame from video.")
+                break
+
+            bg_diff = apply_absdiff(prev_frame, frame)
+            blurred = apply_morphological_operations(bg_diff)
+            edged = define_edges(blurred, frame)
+
+            processed_frame, circle_coords = detect_and_draw_circles(frame, edged, total_frames, frame_count)
+            out.write(processed_frame)
+            
+            x, y = circle_coords if circle_coords else (None, None)
+            writer.writerow([frame_count, x, y])  # Save coordinates to CSV
+            
+            frame_count += 1
+    
+    print(f"Processed {frame_count} frames. \nCircle positions saved to {output_csv}.")
+    cap.release()
+    out.release()
+
 # ==============================================================================
 #                                   MAIN FUNCTION
 # ==============================================================================
@@ -144,7 +246,8 @@ def process_video(input_video: str, output_video: str, output_csv: str):
 if __name__ == "__main__":
     #PROJECT_ROOT = Path().resolve().parent.parent
     #INPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Recording_2_normal_speed.mp4")
-    #OUTPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Output_detected_test_1.mp4")
-    OUTPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "Circle_positions_1.csv")
+    #OUTPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Output_detected_test_2.mp4")
+    OUTPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "Circle_positions_3.csv")
     
-    process_video(INPUT_VIDEO_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)
+    process_video_with_background_subtractor(INPUT_VIDEO_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)
+    #process_video_with_absdiff(INPUT_VIDEO_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)

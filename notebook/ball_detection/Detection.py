@@ -227,7 +227,7 @@ def process_video_with_absdiff(input_video: str, output_video: str, output_csv: 
             blurred = apply_morphological_operations(bg_diff)
             edged = define_edges(blurred, frame)
 
-            processed_frame, circle_coords = detect_and_draw_circles(frame, edged, total_frames, frame_count)
+            processed_frame, circle_coords = detect_and_draw_circles(frame, bg_diff, total_frames, frame_count)
             out.write(processed_frame)
             
             x, y = circle_coords if circle_coords else (None, None)
@@ -247,7 +247,7 @@ if __name__ == "__main__":
     #PROJECT_ROOT = Path().resolve().parent.parent
     #INPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Recording_2_normal_speed.mp4")
     #OUTPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Output_detected_test_2.mp4")
-    OUTPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "Circle_positions_3.csv")
+    #OUTPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "Circle_positions_2.csv")
     
-    process_video_with_background_subtractor(INPUT_VIDEO_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)
-    #process_video_with_absdiff(INPUT_VIDEO_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)
+    #process_video_with_background_subtractor(INPUT_VIDEO_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)
+    process_video_with_absdiff(INPUT_VIDEO_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)

@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 from pathlib import Path
+import pandas as pd
+
 
 # ==============================================================================
 #                              AUXILIARY FUNCTIONS
@@ -72,6 +74,10 @@ def detect_and_draw_circles(frame: np.ndarray, blurred: np.ndarray, total_frames
     min = int((total_frames - frame_count)*0.20 + 10) # TODO: change with more accuracy
     max = int((total_frames - frame_count)*0.20 + 40) # TODO: change with more accuracy
 
+    # For recording_4:
+    # min = int((total_frames - frame_count)*0.10 + 0)
+    # max = int((total_frames - frame_count)*0.20 + 30)
+
     circles = cv2.HoughCircles(
         blurred, cv2.HOUGH_GRADIENT, dp=1.2, minDist=100,
         param1=50, param2=30, minRadius=min, maxRadius=max
@@ -123,6 +129,22 @@ def apply_morphological_operations(fg_mask: np.ndarray):
 
     return blurred
 
+def apply_morphological_operations_lite(fg_mask: np.ndarray):
+    """
+    Applies morphological operations to clean up the foreground mask.
+    
+    Parameters:
+        fg_mask (np.ndarray): Foreground mask after background subtraction.
+    
+    Returns:
+        thresh (np.ndarray): Processed frame
+    """
+    kernel = np.ones((5, 5), np.uint8)
+    thresh = cv2.morphologyEx(fg_mask, cv2.MORPH_OPEN, kernel)  # Remove small noise
+    thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)  # Fill gaps
+
+    return thresh
+
 def define_edges(blurred: np.ndarray, frame: np.ndarray):
     """
     Applies adaptive thresholding and edge detection.
@@ -139,6 +161,21 @@ def define_edges(blurred: np.ndarray, frame: np.ndarray):
 
     return edges
 
+def remove_background(filename, image):
+    """
+    Removes what is not the track in the image.
+
+    Returns:
+        result (np.ndarray): Processed frame
+    """
+    points = pd.read_csv(filename).values[:, :2].astype(np.int32)
+    sorted_indices = np.argsort(points[:, 1])  # Sort by Y values
+    points[sorted_indices[:2], 1] -= 100  # Move the two lowest points up by 25 pixels
+    mask = np.zeros(image.shape[:2], dtype=np.uint8)
+    cv2.fillPoly(mask, [points], 255)
+    result = cv2.bitwise_and(image, image, mask=mask)
+    
+    return result
 # ==============================================================================
 #                            VIDEO PROCESSING FUNCTIONS
 # ==============================================================================
@@ -191,7 +228,7 @@ def process_video_with_background_subtractor(input_video: str, output_video: str
     out.release()
 
 
-def process_video_with_absdiff(input_video: str, output_video: str, output_csv: str):
+def process_video_with_absdiff(input_video: str, input_points: str, output_video: str, output_csv: str):
     """
     Processes an input video to detect and highlight moving circular objects, 
     and saves their center coordinates to a CSV file.
@@ -224,10 +261,11 @@ def process_video_with_absdiff(input_video: str, output_video: str, output_csv: 
                 break
 
             bg_diff = apply_absdiff(prev_frame, frame)
-            blurred = apply_morphological_operations(bg_diff)
-            edged = define_edges(blurred, frame)
+            blurred = apply_morphological_operations_lite(bg_diff)
+            # edged = define_edges(blurred, frame)
+            clean_image = remove_background(input_points, blurred)
 
-            processed_frame, circle_coords = detect_and_draw_circles(frame, bg_diff, total_frames, frame_count)
+            processed_frame, circle_coords = detect_and_draw_circles(frame, clean_image, total_frames, frame_count)
             out.write(processed_frame)
             
             x, y = circle_coords if circle_coords else (None, None)
@@ -246,8 +284,9 @@ def process_video_with_absdiff(input_video: str, output_video: str, output_csv: 
 if __name__ == "__main__":
     #PROJECT_ROOT = Path().resolve().parent.parent
     #INPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Recording_2_normal_speed.mp4")
+    #INPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "lane_points" / "lane_points_2_frame_100.csv")
     #OUTPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Output_detected_test_2.mp4")
     #OUTPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "Circle_positions_2.csv")
     
     #process_video_with_background_subtractor(INPUT_VIDEO_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)
-    process_video_with_absdiff(INPUT_VIDEO_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)
+    process_video_with_absdiff(INPUT_VIDEO_PATH, INPUT_CSV_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)

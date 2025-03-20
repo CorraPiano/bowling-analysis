@@ -11,3 +11,16 @@ CLEAR TRAJECTORY
 Here I have only to allow positions of the ball that have coordinates not so mutch different, solutions are:
 - Take only positions that are near or in the bowling lane
 - Take a point from which the position of the ball cannot differ to mutch from the previous iteration.
+
+____________________________________________________________________________________________________________________
+
+ALGORITHMS TO SMOOTH THE TRAJECTORY:
+1. Moving Average filter
+2. Savitzky-Golay Filter (Polynomial Smoothing)
+3. Kalman Filter (Optimal Smoothing)
+4. Gaussian Filter
+5. LOESS (Locally Weighted Regression)
+
+TECHNIQUES TO REMOVE OUTLIERS:
+1. Z-score filtering
+2. IQR Method (Interquartile Range)

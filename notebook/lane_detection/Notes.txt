@@ -7,6 +7,7 @@ ipotesi:
 Automatizzazione della selezione delle linee laterali:
 ipotesi:
     - il video è 'abbastanza centrato', ovvero ipotizzo di prendere il punto centrale 
-      sulla linea inferione e suppongo che quello appartenga alla pista
-    - tolgo la parte inferiore perchè spesso c'è davanti il coso delle palle e può trovare linee strane
-    - prendo la più vicina, poi trovo la seconda più vicina che abbia una slope simile (tolleranza 30 gradi)
+      sulla linea inferione e suppongo che quello appartenga alla pista 
+      OPPURE prendo il punto medio della palla
+    - tolgo la parte inferiore (sotto la linea orizzontale) perchè spesso c'è davanti il coso delle palle e può trovare linee strane
+    - prendo la più vicina, poi trovo la seconda più vicina 

@@ -1,3 +1,0 @@
-Frames every 50ms
-
-Source video: https://www.youtube.com/watch?v=5fpGkggZfiY&ab_channel=DarrenTang

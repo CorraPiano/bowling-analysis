@@ -6,11 +6,14 @@ from pathlib import Path
 import pandas as pd
 from scipy.signal import savgol_filter
 from scipy.signal import medfilt
+from scipy.optimize import curve_fit
+from scipy.interpolate import interp1d
+
 
 
 
 # ==============================================================================
-#                              AUXILIARY FUNCTIONS
+#                       AUXILIARY FUNCTIONS FOR CENTERS
 # ==============================================================================
 
 def clear_outside_frame_range(df, min_frame=50, max_frame=200):
@@ -65,9 +68,37 @@ def interpolate_missing_coordinates(df, start_frame=50, end_frame=200):
     
     return apply_savitzky_golay_filter(df_full)
 
+# ==============================================================================
+#                       AUXILIARY FUNCTIONS FOR CIRCLES
+# ==============================================================================
+
+def decreasing_func(x, a, b, c):
+    """
+    Defines an exponential decreasing function.
+    """
+    return a * np.exp(-b * x) + c
+
+def process_radius(df):
+    """
+    Processes the radius by interpolating missing values, smoothing, 
+    and fitting an exponential decreasing function.
+    """
+    all_frames = pd.DataFrame({'Frame': np.arange(int(df['Frame'].min()), int(df['Frame'].max()) + 1)})
+    df = pd.merge(all_frames, df, on='Frame', how='left')
+
+    df['Radius'] = df['Radius'].interpolate(method='linear', limit_direction='both')
+    
+    df['Radius'] = savgol_filter(df['Radius'], window_length=11, polyorder=2, mode='nearest')
+    
+    popt, _ = curve_fit(decreasing_func, df['Frame'], df['Radius'], p0=(max(df['Radius']), 0.01, min(df['Radius'])), maxfev=10000)
+    df['Radius'] = decreasing_func(df['Frame'], *popt)
+    
+    df['Radius'] = df['Radius'].round().astype(int)
+    
+    return df
 
 # ==============================================================================
-#                            VIDEO PROCESSING FUNCTIONS
+#                            COORDINATES PROCESSING
 # ==============================================================================
 
 def process_coordinates(input_csv: str, output_csv: str):
@@ -83,6 +114,20 @@ def process_coordinates(input_csv: str, output_csv: str):
 
     print(f"New circle positions saved to {output_csv}.")
 
+# ==============================================================================
+#                              RADIUS PROCESSING
+# ==============================================================================
+
+
+def process_circles(input_csv: str, output_csv: str):
+    """
+    Processes the input CSV file by applying a linear curve.
+    """
+    df = pd.read_csv(input_csv)
+    df = process_radius(df)
+    df.to_csv(output_csv, index=False)
+
+    print(f"New radius values saved to {output_csv}.")
 
 # ==============================================================================
 #                                   MAIN FUNCTION
@@ -94,3 +139,7 @@ if __name__ == "__main__":
     #OUTPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "circle_positions" / "Circle_positions_2.0_clean.csv")
     
     process_coordinates(INPUT_CSV_PATH, OUTPUT_CSV_PATH)
+
+    #CSV_POSITIONS_FILE_PATH_NEW = str(PROJECT_ROOT / "data" / "auxiliary_data" / "circle_positions" / "Circle_positions_2.0_clean_radius.csv")
+
+    process_circles(OUTPUT_CSV_PATH, CSV_POSITIONS_FILE_PATH_NEW)

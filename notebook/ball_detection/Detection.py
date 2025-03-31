@@ -78,6 +78,10 @@ def detect_and_draw_circles(frame: np.ndarray, blurred: np.ndarray, total_frames
     # min = int((total_frames - frame_count)*0.10 + 0)
     # max = int((total_frames - frame_count)*0.20 + 30)
 
+    # For recording_2:
+    # min = int((total_frames - frame_count)*0.20 + 10)
+    # max = int((total_frames - frame_count)*0.20 + 40)
+
     circles = cv2.HoughCircles(
         blurred, cv2.HOUGH_GRADIENT, dp=1.2, minDist=100,
         param1=50, param2=30, minRadius=min, maxRadius=max
@@ -85,14 +89,16 @@ def detect_and_draw_circles(frame: np.ndarray, blurred: np.ndarray, total_frames
     
     output = frame.copy()
     circle_coords = None
+    radius = None
     if circles is not None:
         circles = np.uint16(np.around(circles))
         x, y, r = circles[0, 0]  # Process only the first detected circle
         cv2.circle(output, (x, y), r, (0, 255, 0), 3)
         cv2.circle(output, (x, y), 2, (0, 0, 255), 3)
         circle_coords = (x, y)
-    
-    return output, circle_coords
+        radius = r
+
+    return output, circle_coords, radius
 
 def apply_absdiff(prev_frame: np.ndarray, frame: np.ndarray):
     """
@@ -176,6 +182,7 @@ def remove_background(filename, image):
     result = cv2.bitwise_and(image, image, mask=mask)
     
     return result
+
 # ==============================================================================
 #                            VIDEO PROCESSING FUNCTIONS
 # ==============================================================================
@@ -250,7 +257,7 @@ def process_video_with_absdiff(input_video: str, input_points: str, output_video
 
     with open(output_csv, mode='w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Frame", "X", "Y"])  # Write CSV header
+        writer.writerow(["Frame", "X", "Y", "Radius"])  # Write CSV header
     
         while frame_count < total_frames - 1:
             cap.set(cv2.CAP_PROP_POS_FRAMES, frame_count)
@@ -265,15 +272,16 @@ def process_video_with_absdiff(input_video: str, input_points: str, output_video
             # edged = define_edges(blurred, frame)
             clean_image = remove_background(input_points, blurred)
 
-            processed_frame, circle_coords = detect_and_draw_circles(frame, clean_image, total_frames, frame_count)
+            processed_frame, circle_coords, radius = detect_and_draw_circles(frame, clean_image, total_frames, frame_count)
             out.write(processed_frame)
             
             x, y = circle_coords if circle_coords else (None, None)
-            writer.writerow([frame_count, x, y])  # Save coordinates to CSV
+            r = radius if radius else None
+            writer.writerow([frame_count, x, y, r])  # Save coordinates to CSV
             
             frame_count += 1
     
-    print(f"Processed {frame_count} frames. \nCircle positions saved to {output_csv}.")
+    print(f"Processed {frame_count} frames. \nCircle positions saved to {output_csv}. \nVideo with ball detection saved to {output_video}")
     cap.release()
     out.release()
 
@@ -282,11 +290,12 @@ def process_video_with_absdiff(input_video: str, input_points: str, output_video
 # ==============================================================================
 
 if __name__ == "__main__":
+
     #PROJECT_ROOT = Path().resolve().parent.parent
     #INPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Recording_2_normal_speed.mp4")
     #INPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "lane_points" / "lane_points_2_frame_100.csv")
     #OUTPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Output_detected_test_2.mp4")
-    #OUTPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "Circle_positions_2.csv")
+    #OUTPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "circle_positions" / "Circle_positions_2.csv")
     
     #process_video_with_background_subtractor(INPUT_VIDEO_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)
     process_video_with_absdiff(INPUT_VIDEO_PATH, INPUT_CSV_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)

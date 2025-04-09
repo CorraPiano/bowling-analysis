@@ -1,0 +1,17 @@
+Idea per trovare la linea mancante:
+1.  - stimo un possibile vanishing point.
+    - calcolo H
+    - applico H alla pista reale
+    - vedo quanto ci azzecca
+    - se necessario allungo il vanishing point fino ad avere una ricostruzione abbastanza buona (controntanto la pista risultante con la porzione di marrone detectato)
+
+2.  - dai due angoli e dalla grandezza della linea sotto trovo a quanto deve stare la linea sopra
+    - trovata l'altezza delle linea, in base alla differenza fra gli angoli sotto calcolo l'inclinazione
+    - 
+
+===================================================================================
+
+TEMPLATE MATCHING
+- I want the template to be as close as possible to the actual size of the object
+    I want to locate in the base image
+- 

@@ -7,6 +7,10 @@
                    https://pyimagesearch.com/2018/07/30/opencv-object-tracking/
                    https://www.analyticsvidhya.com/blog/2020/03/ball-tracking-cricket-computer-vision/
                    https://github.com/uditarora/cricket-umpire-assistance
+                   https://learnopencv.com/object-tracking-using-opencv-cpp-python/
+
+- Point tracking: https://github.com/facebookresearch/co-tracker
+                  https://co-tracker.github.io/
 
 - OpticalFlow: https://docs.opencv.org/3.4/d4/dee/tutorial_optical_flow.html
                https://mpolinowski.github.io/docs/IoT-and-Machine-Learning/ML/2021-12-10--opencv-optical-flow-tracking/2021-12-10/
@@ -22,6 +26,14 @@
 
 - youtube videos: https://www.youtube.com/watch?v=7d-zjVNiXKA&ab_channel=AndrewAndersonBowling
                   https://www.youtube.com/watch?v=u8B5XXvtQek&ab_channel=TenpinDoctors-JRRaymond
+
+- more youtube videos never used: https://www.youtube.com/watch?v=iZJBV-wjKo0&ab_channel=TheHype                (7:55)
+                                  https://www.youtube.com/watch?v=k5pJbpIScN8&t=170s&ab_channel=BradandKyle     (6:51)
+                                  https://www.youtube.com/watch?v=CACAmH4r1fw&t=8s&ab_channel=DudePerfect       (4:11)
+                                  https://www.youtube.com/watch?v=wSB9JvsBT4M&t=105s&ab_channel=DudePerfect     (1:26) (4:16)
+                                  https://www.youtube.com/watch?v=6AdlrhFZdhY&ab_channel=TheHouseBowling        (11:47)
+                                  https://www.youtube.com/watch?v=eZm8TgOs6WU&ab_channel=BradandKyle            (7:35) (9:24) (9:35) (16:16)
+
 
 =================================================================================================================
 

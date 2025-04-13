@@ -14,4 +14,14 @@ Idea per trovare la linea mancante:
 TEMPLATE MATCHING
 - I want the template to be as close as possible to the actual size of the object
     I want to locate in the base image
-- 
+
+
+===================================================================================
+
+NOTES:
+- Camera calibration? How to handle the upper line gradient? Use as it is for now?
+- Post-processing on upper line
+- Post-processing on the entire lane shape. Points tracking?
+- Solve the problem of when to start and stop detecting the ball
+- Complete the reconstruction (for each frame)
+- Complete the trajectory reconstruction (for each frame)

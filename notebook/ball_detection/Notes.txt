@@ -53,3 +53,7 @@ Hybrid Approach (Best of Both Worlds)
    - Instead of running YOLO on the full frame, run it only on extracted regions to speed up processing.  
 3. **Tracking with OpenCV (Kalman Filter or Optical Flow)**  
    - Reduce redundant CNN calls by using object tracking after initial detection.  
+
+___________________________________________________________________________________________________________________________________________
+
+Do not stop the recording_2 at frame 200. go ahead

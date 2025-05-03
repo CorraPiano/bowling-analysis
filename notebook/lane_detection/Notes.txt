@@ -1,13 +1,14 @@
-Automatizzazione della selezione linea inferiore FATTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+Automatizzazione della selezione linea inferiore 
 ipotesi:
     - la linea inferiore si trova nell'utimo quarto di immagine
     - è quasi orizzontale (vedi tolleranza)
-    - ipotizzo ci sia almeno un frame dove quella è l'unica linea orizzontale trovata
+    - prendo la prima linea trovata perchè è la più 'marcata'
+    - la pista è marroncino e il campo è ben illuminato
 
 Automatizzazione della selezione delle linee laterali:
 ipotesi:
     - il video è 'abbastanza centrato', ovvero ipotizzo di prendere il punto centrale 
       sulla linea inferione e suppongo che quello appartenga alla pista 
-      OPPURE prendo il punto medio della palla
-    - tolgo la parte inferiore (sotto la linea orizzontale) perchè spesso c'è davanti il coso delle palle e può trovare linee strane
-    - prendo la più vicina, poi trovo la seconda più vicina 
+    - tolgo la parte inferiore (sotto la linea orizzontale) perchè le linee laterali non continuano dopo
+      così si eliminano molte linee errate
+    - prendo la più vicina a dx e sx

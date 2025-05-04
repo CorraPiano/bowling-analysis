@@ -7,6 +7,8 @@ import pandas as pd
 from scipy.signal import savgol_filter
 from scipy.signal import medfilt
 from sklearn.cluster import DBSCAN
+import time
+
 
 # ==============================================================================
 #                              BACKGROUND MOTION FUNCTIONS
@@ -230,7 +232,7 @@ def remove_outliers_bottom(df, threshold=1):
     median_dist = distances.mean()
     std_dist = distances.std()
 
-    outlier_threshold =  threshold * std_dist
+    outlier_threshold =  threshold * std_dist * 2
 
     mask = []
     
@@ -313,7 +315,7 @@ def interpolate_missing_coordinates(df, end_frame=100, start_frame=0, polyorder=
     df_full['Y'] = df_full['Y'].bfill().ffill()
     
     # Apply smoothing to ensure a smooth trajectory
-    df_full = Savitzky_Golay_filter(df_full, polyorder=polyorder)
+    df_full = Savitzky_Golay_filter(df_full, window_length=5, polyorder=polyorder)
     
     return df_full
 
@@ -968,6 +970,62 @@ def is_disappeared(bl_0, br_0, bl, br, tr, tl, max_y, threshold=0.99):
         return bl, br
     return None, None
 
+''' Remove outliers and compute the missing coordinates'''
+def postprocessing_upper(points_df, bottom_y_distances):
+    df = points_df[['Frame', 'up_left_y']].copy()
+    df_length = len(df)
+
+    distances = np.diff(df['up_left_y'].values)
+
+    mean_distance = np.mean(distances)
+    std_distance = np.std(distances)
+
+    threshold = std_distance
+    num_outliers = 100
+
+    while num_outliers > 0:
+        filtered_distances = np.where(np.abs(distances) > threshold, np.nan, distances)
+        num_outliers = np.sum(np.isnan(filtered_distances))
+
+        # Find NaN indeces
+        nan_indices = np.where(np.isnan(filtered_distances))[0]
+        # compute next indeces (I want to remove them from df)
+        next_indices = nan_indices + 1
+        next_indices = next_indices[next_indices < len(df)]
+        # Remove lines
+        df = df.drop(index=df.index[next_indices]).reset_index(drop=True)
+
+        # compute angain the distances
+        distances = np.diff(df['up_left_y'].values)
+
+    # interpolate to found the missing values
+    df['up_left_y'] = df['up_left_y'].interpolate(method='linear', limit_direction='both')
+
+    # fill the remaining values at the end of the df with estimated values from the bottom line
+    for i in range(len(df), df_length):
+        if i >= len(df):
+            df = pd.concat([df, pd.DataFrame({'Frame': [i], 'up_left_y': [df.loc[i-1, 'up_left_y'] + bottom_y_distances[i-1]]})], ignore_index=True)
+    
+    # update points_df with the new values
+    for i, row in df.iterrows():
+        y = row['up_left_y']
+        left_intersection = get_intersection(
+            [points_df.loc[i, 'bottom_left_x'], points_df.loc[i, 'bottom_left_y'],
+            points_df.loc[i, 'up_left_x'], points_df.loc[i, 'up_left_y']],
+            [0, y, 1000, y]
+        )
+        right_intersection = get_intersection(
+            [points_df.loc[i, 'bottom_right_x'], points_df.loc[i, 'bottom_right_y'],
+            points_df.loc[i, 'up_right_x'], points_df.loc[i, 'up_right_y']],
+            [0, y, 1000, y]
+        )
+        if left_intersection is not None and right_intersection is not None:
+            points_df.loc[i, 'up_left_x'] = left_intersection[0]
+            points_df.loc[i, 'up_left_y'] = left_intersection[1]
+            points_df.loc[i, 'up_right_x'] = right_intersection[0]
+            points_df.loc[i, 'up_right_y'] = right_intersection[1]
+    return points_df
+
 ''' When the bottom line is visible it adjust the top line
 when it is not visible anymore, it compute the bottom line starting from the top one'''
 def postprocessing_top_bottom(points_df, cap):
@@ -981,6 +1039,8 @@ def postprocessing_top_bottom(points_df, cap):
 
     # create a copy of the df
     df_copy = points_df.copy()
+    bottom_y_distances = np.diff(df_copy["bottom_left_y"].values)
+
     
     for i in range(1, len(points_df)):
         # select points
@@ -1017,6 +1077,7 @@ def postprocessing_top_bottom(points_df, cap):
 
             if bl_new is None and br_new is None:
                 bottom_disappeared = True
+                index_disappeared = i
                 print(f"Bottom points disappeared at frame {i}.")
             else: # consider correct the bottom points
                 tr_mid = (br_new[0] + right_relative_position[0], br_new[1] + right_relative_position[1])
@@ -1041,7 +1102,22 @@ def postprocessing_top_bottom(points_df, cap):
         points_df.at[i, "up_right_x"] = tr_new[0]
         points_df.at[i, "up_right_y"] = tr_new[1]
 
-    return points_df
+    # Postprocessingg of the upper lines to remove outliers
+    df = postprocessing_upper(points_df, bottom_y_distances)
+    # recompute the bottom points based on the new upper line (if the bottom line is not visible anymore)
+    if bottom_disappeared:
+        for i in range(index_disappeared, len(points_df)):
+            # compute the bottom points in the rows that are changed between df and points_df with relative positions
+            bl_new = (df.iloc[i]["up_left_x"] - left_relative_position[0], df.iloc[i]["up_left_y"] - left_relative_position[1])
+            br_new = (df.iloc[i]["up_right_x"] - right_relative_position[0], df.iloc[i]["up_right_y"] - right_relative_position[1])
+
+            # update df with the new points
+            df.at[i, "bottom_left_x"] = bl_new[0]
+            df.at[i, "bottom_left_y"] = bl_new[1]
+            df.at[i, "bottom_right_x"] = br_new[0]
+            df.at[i, "bottom_right_y"] = br_new[1]
+
+    return df
 
 # ==============================================================================
 #                              GENERATE THE VIDEO
@@ -1146,8 +1222,9 @@ def get_lane_points(video_path: str, output_path_video: str, output_path_data: s
 # ==============================================================================
 
 if __name__ == "__main__":
+    start_time = time.time()
 
-    video_number = "1"
+    video_number = "2"
     PROJECT_ROOT = Path().resolve()
     video_path = str(PROJECT_ROOT / "data" / f"recording_{video_number}" / f"Recording_{video_number}.mp4")
     template_path = str(PROJECT_ROOT / "data" / "auxiliary_data" / "pin_template" / "Template_pin_3.png")
@@ -1156,3 +1233,7 @@ if __name__ == "__main__":
     print('Start lines detection of video:', video_number)
     get_lane_points(video_path, output_path_video, output_path_data, template_path)
     print('End lines detection of video:', video_number)
+
+    end_time = time.time() 
+    elapsed_time = end_time - start_time
+    print(f"Total runtime of Lane Detection: {elapsed_time:.2f} seconds")

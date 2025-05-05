@@ -14,7 +14,7 @@ CONSISTENCY_THRESHOLD = 5
 POSITION_TOLERANCE = 35
 RADIUS_TOLERANCE = 10
 ROI_MARGIN = 50
-MAX_LOST_FRAMES = 15
+MAX_LOST_FRAMES = 2
 
 # ==============================================================================
 #                              AUXILIARY FUNCTIONS
@@ -81,6 +81,18 @@ def compute_upper_polygon(points: np.ndarray) -> np.ndarray:
         for pt in points
     ], dtype=np.int32)
 
+def compute_approx_radius(df: pd.DataFrame) -> int:
+    '''
+    Computes the approximate radius of the ball based on the distance between two points.
+    Args:
+        df (pd.DataFrame): DataFrame containing lane points.
+    Returns:
+        int: Approximate radius of the ball.
+    '''
+    points = get_points_for_frame(df, 0)
+    radius = int(np.linalg.norm(points[0] - points[1]) / 10)
+    return radius
+
 def remove_background(frame_number: int, df: pd.DataFrame, image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     '''
     Removes the background from the image using a polygon mask.
@@ -107,18 +119,37 @@ def preprocess_roi(image: np.ndarray) -> np.ndarray:
     '''
     return cv2.medianBlur(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), 5)
 
-def detect_circle(preprocessed_img: np.ndarray, total_frames: int, frame_number: int) -> np.ndarray | None:
+def detect_circle(preprocessed_img: np.ndarray, r_approx: int) -> np.ndarray | None:
     '''
     Detects circles in the preprocessed image using Hough Circle Transform.
     Args:
         preprocessed_img (np.ndarray): Preprocessed image.
-        total_frames (int): Total number of frames in the video.
-        frame_number (int): Current frame number.
     Returns:
         np.ndarray | None: Detected circles or None if no circles are found.
     '''
-    min_radius = int((total_frames - frame_number) * 0.10)                                      # TODO: change with more accuracy
-    max_radius = int((total_frames - frame_number) * 0.20 + 40)                                 # TODO: change with more accuracy
+    min_radius = int(r_approx * 0.65)
+    max_radius = int(r_approx)
+    return cv2.HoughCircles(
+        preprocessed_img,
+        cv2.HOUGH_GRADIENT,
+        dp=1.2,
+        minDist=50,
+        param1=100,
+        param2=40,
+        minRadius=min_radius,
+        maxRadius=max_radius
+    )
+
+def detect_circle_after_roi(preprocessed_img: np.ndarray, r_approx: int) -> np.ndarray | None:
+    '''
+    Detects circles in the preprocessed image using Hough Circle Transform.
+    Args:
+        preprocessed_img (np.ndarray): Preprocessed image.
+    Returns:
+        np.ndarray | None: Detected circles or None if no circles are found.
+    '''
+    min_radius = max(0, int(r_approx*0.7))
+    max_radius = int(r_approx*1.1)
     return cv2.HoughCircles(
         preprocessed_img,
         cv2.HOUGH_GRADIENT,
@@ -140,7 +171,7 @@ def detect_circle_roi(preprocessed_img: np.ndarray, r_approx: int) -> np.ndarray
     Returns:
         np.ndarray | None: Detected circles or None if no circles are found.
     '''
-    min_radius = max(0, int(r_approx*0.9))
+    min_radius = max(0, int(r_approx*0.89))
     max_radius = int(r_approx*1.08)
     return cv2.HoughCircles(
         preprocessed_img,
@@ -148,7 +179,7 @@ def detect_circle_roi(preprocessed_img: np.ndarray, r_approx: int) -> np.ndarray
         dp=1.2,
         minDist=500,
         param1=200,
-        param2=10,
+        param2=5,
         minRadius=min_radius,
         maxRadius=max_radius
     )
@@ -232,7 +263,8 @@ def process_video_with_roi(input_video: str, input_points: str, output_video: st
                 search_region = cv2.bitwise_and(masked_frame, masked_frame, mask=upper_mask)
                 roi_offset = (0, 0)
                 preprocessed = preprocess_roi(search_region)
-                circles = detect_circle(preprocessed, total_frames, frame_idx)
+                r_approx = compute_approx_radius(df)
+                circles = detect_circle(preprocessed, r_approx)
             elif use_roi and search_roi:
                 x_min, y_min, x_max, y_max = search_roi
                 search_region = masked_frame[y_min:y_max, x_min:x_max]
@@ -243,7 +275,7 @@ def process_video_with_roi(input_video: str, input_points: str, output_video: st
                 search_region = masked_frame
                 roi_offset = (0, 0)
                 preprocessed = preprocess_roi(search_region)
-                circles = detect_circle(preprocessed, total_frames, frame_idx)
+                circles = detect_circle_after_roi(preprocessed, r_approx)
 
             valid_circle = None
 
@@ -285,7 +317,7 @@ def process_video_with_roi(input_video: str, input_points: str, output_video: st
                     consistency_counter = 0
                     last_circle = None
                     search_roi = None
-                    r_approx = None
+                    #r_approx = None
 
                 # Save empty row if no circle detected
                 circle_data.append({

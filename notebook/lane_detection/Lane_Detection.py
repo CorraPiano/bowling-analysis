@@ -514,7 +514,7 @@ def get_lateral_lines(cap, bottom_lines):
     while frame_index < len(bottom_lines):
         ret, video_frame = cap.read()
         if not ret:
-            print("Failed to read the frame at iteration (Lateral linesdetection)", frame_index)
+            print("Failed to read the frame at iteration (Lateral lines detection)", frame_index)
             break
 
         # Compute the three lines in the frame
@@ -1115,6 +1115,34 @@ def postprocessing_top_bottom(points_df, cap):
 
     return df
 
+def postprocessing_top_still(points_df):
+    # Create a copy of the DataFrame to avoid modifying the original one
+    df_copy = points_df.copy()
+
+    # Compute the mean of the 'up_left_y' column for the first half of the DataFrame
+    mean_value = df_copy.iloc[:len(df_copy) // 2]["up_left_y"].mean()
+
+    # Compute the intersection between the horizontal line with y coordinate equal to the mean value and the laetral lines
+    for i in range(len(df_copy)):
+        # Compute the intersection points
+        left_intersection = get_intersection(
+            [points_df.iloc[i]["bottom_left_x"], points_df.iloc[i]["bottom_left_y"],
+            points_df.iloc[i]["up_left_x"], points_df.iloc[i]["up_left_y"]],
+            [0, mean_value, 1000, mean_value]
+        )
+        right_intersection = get_intersection(
+            [points_df.iloc[i]["bottom_right_x"], points_df.iloc[i]["bottom_right_y"],
+            points_df.iloc[i]["up_right_x"], points_df.iloc[i]["up_right_y"]],
+            [0, mean_value, 1000, mean_value]
+        )
+        if left_intersection is not None and right_intersection is not None:
+            df_copy.at[i, "up_left_x"] = left_intersection[0]
+            df_copy.at[i, "up_left_y"] = left_intersection[1]
+            df_copy.at[i, "up_right_x"] = right_intersection[0]
+            df_copy.at[i, "up_right_y"] = right_intersection[1]
+
+    return df_copy
+
 # ==============================================================================
 #                              GENERATE THE VIDEO
 # ==============================================================================
@@ -1209,6 +1237,8 @@ def get_lane_points(video_path: str, output_path_video: str, output_path_data: s
     points_df = create_points_df(bottom_lines, left_lines, right_lines, upper_lines_raw)
     if avg_motion > 1:
         points_df = postprocessing_top_bottom(points_df, cap)
+    else:
+        points_df = postprocessing_top_still(points_df)
     generate_video_lines(cap, output_path_video, points_df)
     publish_csv_lane_points(output_path_data, points_df)
     return
@@ -1220,7 +1250,7 @@ def get_lane_points(video_path: str, output_path_video: str, output_path_data: s
 if __name__ == "__main__":
     start_time = time.time()
 
-    video_number = "3"
+    video_number = "5"
     PROJECT_ROOT = Path().resolve()
     video_path = str(PROJECT_ROOT / "data" / f"recording_{video_number}" / f"Recording_{video_number}.mp4")
     template_path = str(PROJECT_ROOT / "data" / "auxiliary_data" / "pin_template" / "Template_pin_3.png")

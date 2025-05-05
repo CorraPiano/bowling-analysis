@@ -341,10 +341,11 @@ def postprocessing_bottom_lines(horizontal_lines: list, avg_movement) -> list:
     # Reorder columns to have 'Frame', 'X', 'Y' 
     points_df = points_df[['Frame', 'X', 'Y']]
 
-    # Remove outliers
-    points_cleaned = remove_outliers_bottom(points_df)
+    
 
     if avg_movement > 1:
+        # Remove outliers
+        points_cleaned = remove_outliers_bottom(points_df, threshold=0.5)
         # Smooth the trajectory to reduce noise
         points_smoothed = median_filter(points_cleaned)
 
@@ -353,6 +354,9 @@ def postprocessing_bottom_lines(horizontal_lines: list, avg_movement) -> list:
         
         bottom_lines = points_to_lines(points_interpolated)
     else:
+        # Remove outliers
+        points_cleaned = remove_outliers_bottom(points_df)
+
         #get the mean point because I'm assuming the video still
         mean_point = points_cleaned.mean()
         # print('mean point:', mean_point)
@@ -447,7 +451,7 @@ def select_closest_lines(lines, horizontal_line, center, null_line=None):
 
 ''' Filter out 'quite horizontal' lines and lines below the horizotal,
     then select the closest left and right line'''
-def filter_lines(lines_p, horizontal_line, image_center, tolerance_angle = 20):
+def filter_lines(lines_p, horizontal_line, image_center, frame_height, tolerance_angle = 20):
     # Calculate the homogeneous coordinates of the horizontal line
     x1, y1, x2, y2 = horizontal_line
     horizontal_line_homogeneous = np.cross([x1, y1, 1], [x2, y2, 1])        
@@ -461,9 +465,10 @@ def filter_lines(lines_p, horizontal_line, image_center, tolerance_angle = 20):
             angle = calculate_angle(x1, y1, x2, y2)
             if abs(angle) > tolerance_angle:
                 y_max = max(y1, y2)
+                y_min = min(y1, y2)
                 x_max = x1 if y_max == y1 else x2
                 # Filter the lines that have both endpoints over the horizontal line
-                if x_max  + y_max * horizontal_line_homogeneous[1] + horizontal_line_homogeneous[2] > 0: # se a*x + b*y + c > 0 allora il punto è sopra la linea
+                if x_max  + y_max * horizontal_line_homogeneous[1] + horizontal_line_homogeneous[2] > 0 and y_min > frame_height / 4: # se a*x + b*y + c > 0 allora il punto è sopra la linea
                     filtered_lines.append(line)
 
     # define the null line
@@ -493,7 +498,7 @@ def compute_lateral_lines(frame, horizontal_line):
     lines_p = get_lines_pht(edges, min_line_length, max_line_gap)
 
     # select the closest left an right line
-    left_line, right_line = filter_lines(lines_p, horizontal_line, central_point[0]) 
+    left_line, right_line = filter_lines(lines_p, horizontal_line, central_point[0], frame.shape[0]) 
 
     return left_line, right_line
 
@@ -527,15 +532,6 @@ def get_lateral_lines(cap, bottom_lines):
 # ==============================================================================
 #                            POST PROCESSING LATERAL LINES FUNCTIONS
 # ==============================================================================
-# ''' Plot the trajectory of the points''' # DA CANCELLARE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# def plot_trajectory(df, title):
-#     plt.figure(figsize=(8,6))
-#     plt.plot(df['X'], -df['Y'], 'o-', label='Cleaned Trajectory')
-#     plt.xlabel('X Coordinate')
-#     plt.ylabel('Y Coordinate')
-#     plt.title(title)
-#     plt.legend()
-#     plt.show()
 
 ''' execute an iterated algorithm for removing outliers,
     the exit threshold is set as two times the mean of the distances between points at the first iteration'''
@@ -1056,7 +1052,7 @@ def postprocessing_top_bottom(points_df, cap):
         # case 1: the bottom line is visible
         if not bottom_disappeared:
             # select data in a sliding window
-            window_size = 7
+            window_size = 9
             if i < window_size:
                 left_relative_position = (tl_prev[0] - bl_prev[0], tl_prev[1] - bl_prev[1])
                 right_relative_position = (tr_prev[0] - br_prev[0], tr_prev[1] - br_prev[1])
@@ -1069,8 +1065,8 @@ def postprocessing_top_bottom(points_df, cap):
                                             for j in range(i - window_size + 1, i + 1)]
 
                 # select the second lower line in the frame
-                left_relative_position = sorted(left_relative_positions, key=lambda pos: pos[1], reverse=True)[1]
-                right_relative_position = sorted(right_relative_positions, key=lambda pos: pos[1], reverse=True)[1]
+                left_relative_position = sorted(left_relative_positions, key=lambda pos: pos[1], reverse=True)[2]
+                right_relative_position = sorted(right_relative_positions, key=lambda pos: pos[1], reverse=True)[2]
            
             # compute the new position of the bottom points in the current frame (if needed)
             bl_new, br_new = is_disappeared(bl_prev, br_prev, bl, br, tr, tl, height)
@@ -1224,7 +1220,7 @@ def get_lane_points(video_path: str, output_path_video: str, output_path_data: s
 if __name__ == "__main__":
     start_time = time.time()
 
-    video_number = "2"
+    video_number = "3"
     PROJECT_ROOT = Path().resolve()
     video_path = str(PROJECT_ROOT / "data" / f"recording_{video_number}" / f"Recording_{video_number}.mp4")
     template_path = str(PROJECT_ROOT / "data" / "auxiliary_data" / "pin_template" / "Template_pin_3.png")

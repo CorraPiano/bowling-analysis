@@ -1,7 +1,6 @@
 import cv2
 from pathlib import Path
 import numpy as np
-from matplotlib import pyplot as plt
 import math
 import pandas as pd
 from scipy.signal import savgol_filter
@@ -1250,7 +1249,7 @@ def get_lane_points(video_path: str, output_path_video: str, output_path_data: s
 if __name__ == "__main__":
     start_time = time.time()
 
-    video_number = "5"
+    video_number = "2"
     PROJECT_ROOT = Path().resolve()
     video_path = str(PROJECT_ROOT / "data" / f"recording_{video_number}" / f"Recording_{video_number}.mp4")
     template_path = str(PROJECT_ROOT / "data" / "auxiliary_data" / "pin_template" / "Template_pin_3.png")

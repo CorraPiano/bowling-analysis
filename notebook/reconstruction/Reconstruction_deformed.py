@@ -19,7 +19,7 @@ def transform_coordinates(input_csv: str, output_csv: str, scale_x: float, scale
         x_old, y_old = row['x'], row['y']
         x_new = int(x_old * scale_x)
         y_new = int(y_old * scale_y) + 65
-        transformed_points.append([row['frame'], x_new, y_new])
+        transformed_points.append([int(row['frame']), x_new, y_new])
     
     transformed_df = pd.DataFrame(transformed_points, columns=['frame', 'x', 'y'])
     transformed_df.to_csv(output_csv, index=False)

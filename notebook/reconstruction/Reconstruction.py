@@ -58,7 +58,8 @@ def apply_homography_per_frame(input_csv_ball: str, homographies: dict, output_c
 
         point = np.array([[[x, y + r]]], dtype=np.float32)
         transformed_point = cv2.perspectiveTransform(point, H)[0][0]
-        transformed_data.append([frame_id, int(transformed_point[0]), int(transformed_point[1])])
+        # transformed_data.append([frame_id, int(transformed_point[0]), int(transformed_point[1])])
+        transformed_data.append([frame_id, transformed_point[0], transformed_point[1]])
 
     transformed_df = pd.DataFrame(transformed_data, columns=['frame', 'x', 'y'])
     transformed_df.to_csv(output_csv, index=False)

@@ -112,7 +112,7 @@ def median_filter(df, kernel_size=3):
     df = df[df['y'] > 0] 
     return df
 
-def Savitzky_Golay_filter(df, window_length=45, polyorder=3):
+def Savitzky_Golay_filter(df, window_length=50, polyorder=3):
     """
     Apply a Savitzky-Golay filter to the x and y coordinates in the DataFrame.
     Returns:
@@ -122,8 +122,8 @@ def Savitzky_Golay_filter(df, window_length=45, polyorder=3):
     df = df.copy()
     df['x'] = savgol_filter(df['x'], window_length=window_length, polyorder=polyorder)
     df['y'] = savgol_filter(df['y'], window_length=window_length, polyorder=polyorder)
-    df['x'] = df['x'].round().astype(int)
-    df['y'] = df['y'].round().astype(int)
+    #df['x'] = df['x'].round().astype(int)
+    #df['y'] = df['y'].round().astype(int)
 
     return df
 

@@ -102,7 +102,7 @@ def create_sphere_video(df, output_path, fps=30):
 
     # Create and save video
     with writer.saving(fig, output_path, dpi=dpi):
-        for i, row in df.iterrows():
+        for i, row in df.iterrows(): # TODO: here the problem?
             ax.cla()
 
             # CASE: before the first valid data for the axis
@@ -182,7 +182,7 @@ def create_sphere_video(df, output_path, fps=30):
             z = R_total[2, 0]*x0 + R_total[2, 1]*y0 + R_total[2, 2]*z0
 
             # Draw the sphere
-            ax.plot_surface(x, y, z, facecolors=colors, edgecolor='gray', alpha=1, linewidth=0.01)        
+            ax.plot_surface(x, y, z, facecolors=colors, edgecolor='gray', alpha=1, linewidth=0.01)
 
             ax.set_xlim([-1.2, 1.2])
             ax.set_ylim([-1.5, 0.9])

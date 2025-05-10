@@ -9,8 +9,6 @@ from matplotlib.animation import FFMpegWriter
 import time
 
 
-
-
 # ==============================================================================
 #                                   VIDEO FUNCTIONS
 # ==============================================================================
@@ -213,20 +211,15 @@ def create_sphere_video(df, output_path, fps=30):
 # ==============================================================================
 
 ''' Main function to detect the spin, process the data and create the sphere video '''
-def spin_detection(video_path, output_path, input_data_path, create_video=False):
+def spin_detection(video_path, output_path, input_data_path):
     # Load the video
     cap = cv2.VideoCapture(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     # Load the CSV file into a DataFrame
     df = pd.read_csv(input_data_path)
-
-    # PROCESSING
-
-    # POSTPROCESSING
     
-    if create_video:
-        create_sphere_video(df, output_path, fps=fps)
+    create_sphere_video(df, output_path, fps=fps)
 
     # Release resources
     cap.release()
@@ -236,21 +229,21 @@ def spin_detection(video_path, output_path, input_data_path, create_video=False)
 # ==============================================================================
 
 if __name__ == "__main__":
+    
+    #video_number = "7"
+    #PROJECT_ROOT = Path().resolve()
+    #video_path = str(PROJECT_ROOT / "data" / f"recording_{video_number}" / f"Recording_{video_number}.mp4")
+    #output_path_video = str(PROJECT_ROOT / "data" / f"recording_{video_number}" / "Rotating_sphere.mp4")
+    #input_data_path = str(PROJECT_ROOT / "notebook" / "spin" / "intermediate_data" / f"Rotation_data_processed_{video_number}.csv")
+
     start_time = time.time()
 
-    video_number = "7"
-    PROJECT_ROOT = Path().resolve()
-    video_path = str(PROJECT_ROOT / "data" / f"recording_{video_number}" / f"Recording_{video_number}.mp4")
-    output_path_video = str(PROJECT_ROOT / "data" / f"recording_{video_number}" / "Rotating_sphere.mp4")
-    # CHANGE TO THE CORRECT INPUT DATA PATH
-    input_data_path = str(PROJECT_ROOT / "notebook" / "spin" / "intermediate_data" / f"Rotation_data_processed_{video_number}.csv")
+    print(f"Starting spin detection for video {VIDEO_NUM}...")
 
-    create_video = True
-
-    print(f"Starting spin detection for video {video_number}...")
-
-    spin_detection(video_path, output_path_video, input_data_path, create_video=create_video)
+    spin_detection(video_path, output_path_video, input_data_path)
 
     end_time = time.time() 
+
     elapsed_time = end_time - start_time
+
     print(f"Total runtime of Lane Detection: {elapsed_time:.2f} seconds")

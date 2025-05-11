@@ -112,7 +112,7 @@ def median_filter(df, kernel_size=3):
     df = df[df['y'] > 0] 
     return df
 
-def Savitzky_Golay_filter(df, window_length=50, polyorder=3):
+def Savitzky_Golay_filter(df, window_length=45, polyorder=3):
     """
     Apply a Savitzky-Golay filter to the x and y coordinates in the DataFrame.
     Returns:

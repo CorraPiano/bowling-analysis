@@ -41,7 +41,7 @@ def compute_optical_flow(gray1, gray2, mask, ball_radius):
     return p0, p1, p0r, status_forward, status_backward, fb_error
 
 def filter_3d_points(p0, p1, p0r, status_forward, status_backward, fb_error,
-                     center_roi1, center_roi2, ball_radius, fb_threshold=10.0, low_threshold_factor=3):
+                     center_roi1, center_roi2, ball_radius, fb_threshold=10.0, low_threshold_factor=5):
     movement_threshold = ball_radius
     low_movement_threshold = ball_radius / low_threshold_factor
 

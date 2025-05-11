@@ -344,17 +344,3 @@ def process_video_with_roi(input_video: str, input_points: str, output_video: st
     # Save circle data to CSV
     pd.DataFrame(circle_data).to_csv(output_csv, index=False)
     print(f"Circle data saved to {output_csv} \nVideo saved to {output_video}")
-
-# ==============================================================================
-#                                   MAIN FUNCTION
-# ==============================================================================
-
-if __name__ == "__main__":
-
-    #PROJECT_ROOT = Path().resolve().parent.parent
-    #INPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Recording_2.mp4")
-    #INPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "lane_points" / "lane_points_processed_2.csv")
-    #OUTPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Ball_detected_raw_2.mp4")
-    #OUTPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "circle_positions" / "Circle_positions_raw_2.csv")
-
-    process_video_with_roi(INPUT_VIDEO_PATH, INPUT_CSV_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)

@@ -79,16 +79,3 @@ def process_reconstruction(input_csv_lane: str, input_csv_ball: str, output_csv:
 
     homographies = compute_homographies_per_frame(input_csv_lane, width, height)
     apply_homography_per_frame(input_csv_ball, homographies, output_csv)
-
-# ==============================================================================
-#                                   MAIN FUNCTION
-# ==============================================================================
-
-if __name__ == "__main__":
-    #PROJECT_ROOT = Path().resolve().parent.parent
-    #CSV_POSITIONS_FILE_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "lane_points" / "lane_points_2_frame_100.csv")
-    #VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Recording_2.mp4")
-    #CSV_POINTS_POSITIONS_FILE_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "circle_positions" / "Circle_positions_2.0_clean_radius.csv")
-    #OUTPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "reconstructed_positions" / "transformed_positions_2.csv")
-
-    process_reconstruction(CSV_POSITIONS_FILE_PATH, CSV_POINTS_POSITIONS_FILE_PATH, OUTPUT_CSV_PATH)

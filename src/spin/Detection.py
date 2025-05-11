@@ -4,20 +4,11 @@ import cv2
 import pandas as pd
 import math
 
+from utility.Fill_frames import fill_frames
+
 # ==============================================================================
 #                               HELPER FUNCTIONS
 # ==============================================================================
-
-def load_video_and_data(video_path, csv_path):
-    cap = cv2.VideoCapture(video_path)
-    if not cap.isOpened():
-        raise IOError("Error: Could not open video.")
-    
-    df = pd.read_csv(csv_path)
-    if df.empty:
-        raise ValueError("Error: The CSV file is empty.")
-    
-    return cap, df
 
 def roi_bounds(center, radius, frame_shape, offset=2):
     x_min = max(center[0] - radius - offset, 0)
@@ -90,7 +81,13 @@ def compute_rotation(old3d, new3d):
 # ==============================================================================
 
 def process_spin(input_video_path, input_csv_path, output_csv_path):
-    cap, df = load_video_and_data(input_video_path, input_csv_path)
+
+    df = fill_frames(input_video_path, input_csv_path)
+
+    cap = cv2.VideoCapture(input_video_path)
+    if not cap.isOpened():
+        raise IOError("Error: Could not open video.")
+
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     offset = 2
     output_data = []
@@ -158,16 +155,3 @@ def process_spin(input_video_path, input_csv_path, output_csv_path):
     output_df = pd.DataFrame(output_data)
     output_df.to_csv(output_csv_path, index=False)
     print(f"Saved rotation data to {output_csv_path}")
-
-# ==============================================================================
-#                                   MAIN FUNCTION
-# ==============================================================================
-
-if __name__ == "__main__":
-    #video_number = "7"
-    #PROJECT_ROOT = Path().resolve()
-    #INPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / f"recording_{VIDEO_NUMBER}" / f"Recording_{VIDEO_NUMBER}.mp4")
-    #INPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "circle_positions" / f"Adjusted_positions_new_{VIDEO_NUMBER}.csv")
-    #OUTPUT_CSV_PATH = str(PROJECT_ROOT / "notebook" / "spin" / "intermediate_data" / f"Rotation_data_TEST_{VIDEO_NUMBER}.csv")
-    
-    process_spin(INPUT_VIDEO_PATH, INPUT_CSV_PATH, OUTPUT_CSV_PATH)

@@ -43,12 +43,12 @@ def Savitzky_Golay_filter(df, window_length=60, polyorder=2):
 #                           RECONSTRUCTION FUNCTIONS
 # ==============================================================================
 
-def process_reconstruction(input_csv: str, output_csv: str):
+def process_reconstruction_deformed(input_csv: str, output_csv: str, template_path: str):
     """
     Process the reconstruction by transforming coordinates and applying smoothing.
     """
     df = pd.read_csv(input_csv)
-    template = cv2.imread('intermediate_data/Template_lane_1.png')
+    template = cv2.imread(template_path)
     h, w = template.shape[:2]
 
     old_width, old_height = 106, 1829
@@ -62,14 +62,3 @@ def process_reconstruction(input_csv: str, output_csv: str):
     df = pd.read_csv(output_csv)
     df_smooted = Savitzky_Golay_filter(df)
     df_smooted.to_csv(output_csv, index=False)
-
-# ==============================================================================
-#                                   MAIN FUNCTION
-# ==============================================================================
-
-if __name__ == "__main__":
-    #PROJECT_ROOT = Path().resolve().parent.parent
-    #CSV_POINTS_POSITIONS_FILE_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "reconstructed_positions" / f"Transformed_positions_processed_{VIDEO_NUM}.csv")
-    #CSV_POINTS_POSITIONS_DEFORMED_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "reconstructed_positions" / f"Transformed_positions_deformed_{VIDEO_NUM}.csv")
-
-    process_reconstruction(CSV_POINTS_POSITIONS_FILE_PATH, CSV_POINTS_POSITIONS_DEFORMED_PATH)

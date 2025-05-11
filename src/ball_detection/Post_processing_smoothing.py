@@ -93,7 +93,7 @@ def process_video(input_video, output_video, df_adjusted):
 # ==============================================================================
 
 
-def process_data(input_video, input_csv, transformed_csv, output_csv, output_video):
+def process_coordinates_final(input_video, input_csv, transformed_csv, output_csv, output_video):
     """
     Process the radius data from the input CSV file and save the cleaned data to the output CSV file.
     """
@@ -119,18 +119,3 @@ def process_data(input_video, input_csv, transformed_csv, output_csv, output_vid
 
     df_adjusted = pd.read_csv(output_csv).set_index("frame")
     process_video(input_video, output_video, df_adjusted)
-
-
-# ==============================================================================
-#                                   MAIN FUNCTION
-# ==============================================================================
-
-if __name__ == "__main__":
-    #PROJECT_ROOT = Path().resolve().parent.parent
-    #INPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / f"recording_{VIDEO_NUMBER}" / f"Recording_{VIDEO_NUMBER}.mp4")
-    #ORIGINAL_CSV_PATH = str(PROJECT_ROOT / "notebook" / "ball_detection" / "intermediate_data" / f"Circle_positions_cleaned_{VIDEO_NUMBER}.csv")
-    #TRASFORMED_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "circle_positions" / f"Ball_lower_point_raw_{VIDEO_NUMBER}.csv")
-    #OUTPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "circle_positions" / f"Adjusted_positions_{VIDEO_NUMBER}.csv")
-    #OUTPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / f"recording_{VIDEO_NUMBER}" / f"Ball_detected_processed_{VIDEO_NUMBER}.mp4")
-    
-    process_data(INPUT_VIDEO_PATH, ORIGINAL_CSV_PATH, TRASFORMED_CSV_PATH, OUTPUT_CSV_PATH, OUTPUT_VIDEO_PATH)

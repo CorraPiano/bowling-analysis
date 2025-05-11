@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from notebook.lane_detection.Upper_Line_Detection import get_intersection
+from lane_detection.Upper_Line_Detection import get_intersection
 
 
 ''' Create a df of the 4 corners of the lane from the 4 lines'''

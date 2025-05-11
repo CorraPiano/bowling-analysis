@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 from sklearn.cluster import DBSCAN
 
-from notebook.lane_detection.Bottom_Line_Detection import calculate_angle
-from notebook.lane_detection.Bottom_Line_Postprocessing import get_relevant_points, interpolate_missing_coordinates, points_to_lines
+from lane_detection.Bottom_Line_Detection import calculate_angle
+from lane_detection.Bottom_Line_Postprocessing import get_relevant_points, interpolate_missing_coordinates, points_to_lines
 
 ''' execute an iterated algorithm for removing outliers,
     the exit threshold is set as two times the mean of the distances between points at the first iteration'''

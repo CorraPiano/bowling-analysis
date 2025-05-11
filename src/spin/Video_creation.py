@@ -211,7 +211,7 @@ def create_sphere_video(df, output_path, fps=30):
 # ==============================================================================
 
 ''' Main function to detect the spin, process the data and create the sphere video '''
-def spin_detection(video_path, output_path, input_data_path):
+def spin_video_creation(video_path, output_path, input_data_path):
     # Load the video
     cap = cv2.VideoCapture(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
@@ -223,27 +223,3 @@ def spin_detection(video_path, output_path, input_data_path):
 
     # Release resources
     cap.release()
-
-# ==============================================================================
-#                                   MAIN FUNCTION
-# ==============================================================================
-
-if __name__ == "__main__":
-    
-    #video_number = "7"
-    #PROJECT_ROOT = Path().resolve()
-    #video_path = str(PROJECT_ROOT / "data" / f"recording_{video_number}" / f"Recording_{video_number}.mp4")
-    #output_path_video = str(PROJECT_ROOT / "data" / f"recording_{video_number}" / "Rotating_sphere.mp4")
-    #input_data_path = str(PROJECT_ROOT / "notebook" / "spin" / "intermediate_data" / f"Rotation_data_processed_{video_number}.csv")
-
-    start_time = time.time()
-
-    print(f"Starting spin detection for video {VIDEO_NUM}...")
-
-    spin_detection(video_path, output_path_video, input_data_path)
-
-    end_time = time.time() 
-
-    elapsed_time = end_time - start_time
-
-    print(f"Total runtime of Lane Detection: {elapsed_time:.2f} seconds")

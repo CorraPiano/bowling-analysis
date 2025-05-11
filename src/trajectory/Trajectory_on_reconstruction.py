@@ -8,9 +8,13 @@ from pathlib import Path
 #                              CONSTANTS
 # ==============================================================================
 
+WIDTH = 106       # Approximate pixels for 1.0668m
+HEIGHT = 1829     # Approximate pixels for 18.29m
+BROWN_COLOR = (135, 184, 222)  # RGB for burly wood
 BALL_COLOR = (0, 0, 255)
 BALL_RADIUS = 10
-LINE_THICKNESS = 5
+LINE_THICKNESS = 2
+
 
 # ==============================================================================
 #                          AUXILIARY FUNCTIONS
@@ -18,7 +22,7 @@ LINE_THICKNESS = 5
 
 def load_positions_from_csv(csv_file_path):
     """
-    Load (frame_num, x, y) positions from a CSV file.
+    Load ball positions from a CSV file.
     Returns:
         A dictionary with frame numbers as keys and (x, y) tuples as values.
     """
@@ -44,12 +48,11 @@ def load_positions_from_csv(csv_file_path):
 #                           PRINCIPAL FUNCTION
 # ==============================================================================
 
-def main(input_video_path, csv_file_path, csv_template_path, output_video_path):
+def trajectory_on_reconstruction(input_video_path, csv_file_path, output_video_path):
     """
     Main function to read a video, overlay a trajectory from a CSV file, and save the output.
     """
-    template = cv2.imread(csv_template_path)
-    height, width = template.shape[:2]
+    alley = np.full((HEIGHT, WIDTH, 3), BROWN_COLOR, dtype=np.uint8)
 
     cap = cv2.VideoCapture(input_video_path)
     if not cap.isOpened():
@@ -58,10 +61,9 @@ def main(input_video_path, csv_file_path, csv_template_path, output_video_path):
 
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
+    out = cv2.VideoWriter(output_video_path, fourcc, fps, (WIDTH, HEIGHT))
 
     positions = load_positions_from_csv(csv_file_path)
-
     trajectory = []
     frame_count = 0
 
@@ -70,7 +72,7 @@ def main(input_video_path, csv_file_path, csv_template_path, output_video_path):
         if not ret:
             break
 
-        frame = template.copy()
+        frame = alley.copy()
 
         if frame_count in positions:
             x, y = positions[frame_count]
@@ -89,15 +91,3 @@ def main(input_video_path, csv_file_path, csv_template_path, output_video_path):
     out.release()
     print(f"Tracking video saved to {output_video_path}")
 
-
-# ==============================================================================
-#                                ENTRY POINT
-# ==============================================================================
-
-if __name__ == "__main__":
-    #INPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / f"recording_{VIDEO_NUM}" / f"Recording_{VIDEO_NUM}.mp4")
-    #CSV_FILE_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "reconstructed_positions" / f"Transformed_positions_deformed_{VIDEO_NUM}.csv")
-    #CSV_TEMPLATE_PATH = str(PROJECT_ROOT / "notebook" / "reconstruction" / "intermediate_data" / "Template_lane_1.png")
-    #OUTPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / f"recording_{VIDEO_NUM}" / f"Reconstructed_trajectory_deformed_{VIDEO_NUM}.mp4")
-
-    main(INPUT_VIDEO_PATH, CSV_FILE_PATH, CSV_TEMPLATE_PATH, OUTPUT_VIDEO_PATH)

@@ -155,7 +155,7 @@ def interpolate_missing_coordinates(df):
 # ==============================================================================
 
 
-def process_data(input_csv: str, output_csv: str):
+def process_data_transformed(input_csv: str, output_csv: str):
     """
     Process the input CSV file and save the cleaned data to the output CSV file.
     """
@@ -168,15 +168,3 @@ def process_data(input_csv: str, output_csv: str):
     df_interpolated.to_csv(output_csv, index=False)
 
     print("Cleaned data saved to: ", output_csv)
-
-
-# ==============================================================================
-#                                   MAIN FUNCTION
-# ==============================================================================
-
-if __name__ == "__main__":
-    #PROJECT_ROOT = Path().resolve().parent.parent
-    #INPUT_CSV_PATH = str(PROJECT_ROOT / "notebook" / "ball_detection" / "intermediate_data" / f"Circle_positions_raw_{VIDEO_NUM}.csv")
-    #OUTPUT_CSV_PATH = str(PROJECT_ROOT / "notebook" / "ball_detection" / "intermediate_data" / f"Circle_positions_cleaned_{VIDEO_NUM}.csv")
-
-    process_data(CSV_POSITIONS_FILE_PATH, OUTPUT_CSV_PATH)

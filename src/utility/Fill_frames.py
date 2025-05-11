@@ -1,7 +1,7 @@
 import cv2
 import pandas as pd
 
-def fill_frames(video_path: str, csv_path: str, output_path: str):
+def fill_frames(video_path: str, csv_path: str) -> pd.DataFrame:
     cap = cv2.VideoCapture(video_path)
 
     if not cap.isOpened():
@@ -42,7 +42,4 @@ def fill_frames(video_path: str, csv_path: str, output_path: str):
     # Reset index to save as CSV
     full_df.reset_index(inplace=True)
 
-    # === Step 5: Save to new CSV ===
-    full_df.to_csv(output_path, index=False)
-
-    print(f"Saved updated CSV with all {frame_count} frames to {output_path}")
+    return full_df

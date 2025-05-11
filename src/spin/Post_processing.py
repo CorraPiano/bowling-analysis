@@ -5,6 +5,8 @@ from pathlib import Path
 from sklearn.linear_model import LinearRegression
 from scipy.ndimage import gaussian_filter1d
 
+from utility.Fill_frames import fill_frames
+
 
 # ==============================================================================
 #                             OUTLIER REMOVAL FUNCTIONS
@@ -179,11 +181,11 @@ def compute_z_axis_from_xy(df, y_axis_avg):
 #                             MAIN VIDEO PROCESSING
 # ==============================================================================
 
-def spin_detection(input_video_path, output_csv_path, input_original_csv_path):
+def spin_post_processing(input_csv_path, output_csv_path, input_original_csv_path, input_video_path):
 
     # TODO: apply fill_frames
 
-    df = pd.read_csv(input_video_path)
+    df = pd.read_csv(input_csv_path)
     z_axis_avg = df['z_axis'].mean()
 
     # Flip sign of axes based on z_axis
@@ -207,7 +209,8 @@ def spin_detection(input_video_path, output_csv_path, input_original_csv_path):
     filtered_df = remove_outliers(filtered_df, threshold=0.3)
     filtered_df = remove_outliers(filtered_df, threshold=0.3)
 
-    df_original = pd.read_csv(input_original_csv_path)
+    #df_original = pd.read_csv(input_original_csv_path)
+    df_original = fill_frames(input_video_path, input_original_csv_path)
     result_df = interpolate_axes_from_b(filtered_df, df_original)
 
     # Apply Gaussian smoothing
@@ -268,17 +271,3 @@ def spin_detection(input_video_path, output_csv_path, input_original_csv_path):
     df_processed['angle'] = df['angle']
     df_processed.to_csv(output_csv_path, index=False)
     print(f"Saved rotation data to {output_csv_path}")
-
-
-# ==============================================================================
-#                                  ENTRY POINT
-# ==============================================================================
-
-if __name__ == "__main__":
-    
-    # VIDEO_NUMBER = "7"
-    # PROJECT_ROOT = Path().resolve().parent.parent
-    # INPUT_CSV_PATH = str(PROJECT_ROOT / "notebook" / "spin" / "intermediate_data" / f"Rotation_data_{VIDEO_NUMBER}.csv")
-    # OUTPUT_CSV_PATH = str(PROJECT_ROOT / "notebook" / "spin" / "intermediate_data" / f"Rotation_data_processed_{VIDEO_NUMBER}.csv")
-
-    spin_detection(INPUT_CSV_PATH, OUTPUT_CSV_PATH, INPUT_ORIGINAL_CSV_PATH)

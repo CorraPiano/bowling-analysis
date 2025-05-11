@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from notebook.lane_detection.Bottom_Line_Detection import calculate_angle, get_edges, get_lines_pht
+from lane_detection.Bottom_Line_Detection import calculate_angle, get_edges, get_lines_pht
 
 
 ''' select the point at the center (x) of the frame on the line'''

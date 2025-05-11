@@ -151,7 +151,7 @@ def save_transformed_points(points, output_csv_path):
 # ==============================================================================
 
 
-def main(input_video: str, transformed_csv: str, lane_csv: str, output_video: str, output_csv: str):
+def trajectory_on_video(input_video: str, transformed_csv: str, lane_csv: str, output_video: str, output_csv: str):
     """
     Main function to read a video, overlay a trajectory from a CSV file, and save the output.
     """
@@ -169,18 +169,3 @@ def main(input_video: str, transformed_csv: str, lane_csv: str, output_video: st
 
     print(f"Tracking video saved to {output_video}")
     save_transformed_points(transformed_points, output_csv)
-
-# ==============================================================================
-#                                   MAIN FUNCTION
-# ==============================================================================
-
-
-if __name__ == "__main__":
-
-    #INPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / f"recording_{VIDEO_NUM}" / f"Recording_{VIDEO_NUM}.mp4")
-    #TRASFORMED_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "reconstructed_positions" / f"Transformed_positions_processed_{VIDEO_NUM}.csv")
-    #LANE_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "lane_points" / f"Lane_points_{VIDEO_NUM}.csv")
-    #OUTPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / f"recording_{VIDEO_NUM}" / f"Tracked_output_{VIDEO_NUM}.mp4")
-    #OUTPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "circle_positions" / f"Ball_lower_point_raw_{VIDEO_NUM}.csv")
-
-    main(INPUT_VIDEO_PATH, TRASFORMED_CSV_PATH, LANE_CSV_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)

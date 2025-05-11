@@ -1,32 +1,127 @@
 from pathlib import Path
-from notebook.ball_detection.Detection import process_video_with_roi
+import cv2
+
+from lane_detection.Background_Motion import estimate_background_motion
+from lane_detection.Bottom_Line_Detection import get_bottom_lines
+from lane_detection.Bottom_Line_Postprocessing import postprocessing_bottom_lines
+from lane_detection.Lane_Detection import generate_video_lines, publish_csv_lane_points         # TODO: remove this import
+from lane_detection.Lateral_Lines_Postprocessing import postprocessing_lateral_lines
+from lane_detection.Lateral_Lines_detection import get_lateral_lines
+from lane_detection.Upper_Line_Detection import get_upper_lines
+from lane_detection.Upper_Line_Postprocessing import create_points_df, postprocessing_top_bottom, postprocessing_top_still
+
+from ball_detection.Detection import process_video_with_roi
+from ball_detection.Post_processing_outliers import process_data
+from reconstruction.Post_processing_positions import process_data_transformed
+from reconstruction.Reconstruction import process_reconstruction
+from reconstruction.Reconstruction_deformed import process_reconstruction_deformed
+from spin.Detection import process_spin
+from spin.Post_processing import spin_post_processing
+from spin.Video_creation import spin_video_creation
+from trajectory.Trajectory_on_reconstruction import trajectory_on_reconstruction
+from trajectory.Trajectory_on_reconstruction_deformed import trajectory_on_reconstruction_deformed
+from trajectory.Trajectory_on_video import trajectory_on_video
+from ball_detection.Post_processing_smoothing import process_coordinates_final
+from utility.Final_video_creation import create_final_video
 
 
-def test(input, output):
-    print("Input:", input) 
-    print("Output:", output)
+#===================================================================================
+# This script runs the entire pipeline for the ball analysis
+#===================================================================================
 
 if __name__ == "__main__":
 
+    #===============================================================================
+    # PATHS
+    #===============================================================================
     VIDEO_NUM = "2"
-    PROJECT_ROOT = Path().resolve().parent
+    PROJECT_ROOT = Path().resolve()
+
+    #Lane detection
     INPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / f"recording_{VIDEO_NUM}" / f"Recording_{VIDEO_NUM}.mp4")
-    INPUT_CSV_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "lane_points" / f"Lane_points_{VIDEO_NUM}.csv")
-    OUTPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / f"recording_{VIDEO_NUM}" / f"Ball_detected_raw_TEST_{VIDEO_NUM}.mp4")
-    OUTPUT_CSV_PATH = str(PROJECT_ROOT / "notebook" / "ball_detection" / "intermediate_data" / f"Circle_positions_raw_TEST_{VIDEO_NUM}.csv")
+    TEMPLATE_PIN_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "pin_template" / "Template_pin_3.png")
+    VIDEO_LANE_DETECTION_PATH = str(PROJECT_ROOT / "output_data" / "Lane_detection.mp4")
+    LANE_POINTS_PATH = str(PROJECT_ROOT / "output_data" / f"Lane_points_{VIDEO_NUM}.csv")
+
+    #Ball detection
+    VIDEO_BALL_DETECTION_PATH = str(PROJECT_ROOT / "output_data" / f"Ball_detected_raw_{VIDEO_NUM}.mp4")
+    BALL_COORD_PATH = str(PROJECT_ROOT / "output_data" / f"Circle_positions_raw_{VIDEO_NUM}.csv")
+    BALL_COORD_CLEAR_PATH = str(PROJECT_ROOT / "output_data" / f"Circle_positions_cleaned_{VIDEO_NUM}.csv")
+    BALL_COORD_TRANS_PATH = str(PROJECT_ROOT / "output_data" / f"Transformed_positions_raw_{VIDEO_NUM}.csv")
+    BALL_COORD_TRANS_CLEAR_PATH = str(PROJECT_ROOT / "output_data" / f"Transformed_positions_processed_{VIDEO_NUM}.csv")
+    VIDEO_TRAJ_ON_RECORDING = str(PROJECT_ROOT / "output_data" / f"Tracked_output_{VIDEO_NUM}.mp4")
+    BALL_LOWER_COORD_PATH = str(PROJECT_ROOT / "output_data" /  f"Ball_lower_point_raw_{VIDEO_NUM}.csv")
+    BALL_LOWER_COORD_CLEAN_PATH = str(PROJECT_ROOT / "output_data" /  f"Adjusted_positions_{VIDEO_NUM}.csv")
+    VIDEO_BALL_PROCESSED_PATH = str(PROJECT_ROOT / "output_data" /  f"Ball_detected_processed_{VIDEO_NUM}.mp4")
+
+    #Reconstruction
+    BALL_COORD_DEFORMED_PATH = str(PROJECT_ROOT / "output_data" / f"Transformed_positions_deformed_{VIDEO_NUM}.csv")
+
+    #Trajectory
+    VIDEO_TRAJ_ON_LANE = str(PROJECT_ROOT / "output_data" / f"Reconstructed_trajectory_processed_{VIDEO_NUM}.mp4")
+    TEMPLATE_LANE_PATH = str(PROJECT_ROOT / "notebook" / "reconstruction" / "intermediate_data" / "Template_lane_1.png")
+    VIDEO_TRAJ_ON_LANE_DEFORMED = str(PROJECT_ROOT / "output_data" / f"Reconstructed_trajectory_deformed_{VIDEO_NUM}.mp4")
+
+    #Spin
+    ROTATION_DATA_PATH = str(PROJECT_ROOT / "output_data" / f"Rotation_data_{VIDEO_NUM}.csv")
+    ROTATION_DATA_PROCESSED_PATH = str(PROJECT_ROOT / "output_data" / f"Rotation_data_processed_{VIDEO_NUM}.csv")
+    VIDEO_SPHERE_PATH = str(PROJECT_ROOT / "output_data" / "Rotating_sphere.mp4")
+
+    #Video creation
+    VIDEO_FINAL_PATH = str(PROJECT_ROOT / "output_data" / f"Final_{VIDEO_NUM}.mp4")
 
 
-    process_video_with_roi(INPUT_VIDEO_PATH, INPUT_CSV_PATH, OUTPUT_VIDEO_PATH, OUTPUT_CSV_PATH)
 
-    # df = process_bottom()
-    # df = process_laterali(df)
-    # df = process_up(df)
-    # df = post_processing_final(df)
+    #===============================================================================
+    # LANE DETECTION
+    #===============================================================================
+    cap = cv2.VideoCapture(INPUT_VIDEO_PATH)
+    avg_motion = estimate_background_motion(cap)
+    bottom_lines_raw = get_bottom_lines(cap)
+    bottom_lines = postprocessing_bottom_lines(bottom_lines_raw, avg_motion)
+    left_lines_raw, right_lines_raw = get_lateral_lines(cap, bottom_lines)
+    left_lines, right_lines = postprocessing_lateral_lines(left_lines_raw, right_lines_raw, avg_motion)
+    upper_lines_raw = get_upper_lines(cap, TEMPLATE_PIN_PATH, bottom_lines, left_lines, right_lines)
+    points_df = create_points_df(bottom_lines, left_lines, right_lines, upper_lines_raw)
+    if avg_motion > 1:
+        points_df = postprocessing_top_bottom(points_df, cap)
+    else:
+        points_df = postprocessing_top_still(points_df)
+    generate_video_lines(cap, VIDEO_LANE_DETECTION_PATH, points_df)
+    publish_csv_lane_points(LANE_POINTS_PATH, points_df)
 
-    # if video:
-    #     process_video_lane(df)
+    #===============================================================================
+    # BALL DETECTION
+    #===============================================================================
+    process_video_with_roi(INPUT_VIDEO_PATH, LANE_POINTS_PATH, VIDEO_BALL_DETECTION_PATH, BALL_COORD_PATH)
+    process_data(BALL_COORD_PATH, BALL_COORD_CLEAR_PATH)
+    process_reconstruction(LANE_POINTS_PATH, BALL_COORD_CLEAR_PATH, BALL_COORD_TRANS_PATH)
+    process_data_transformed(BALL_COORD_TRANS_PATH, BALL_COORD_TRANS_CLEAR_PATH)
+    trajectory_on_video(INPUT_VIDEO_PATH, BALL_COORD_TRANS_CLEAR_PATH, LANE_POINTS_PATH, VIDEO_TRAJ_ON_RECORDING, BALL_LOWER_COORD_PATH)
+    process_coordinates_final(INPUT_VIDEO_PATH, BALL_COORD_CLEAR_PATH, BALL_LOWER_COORD_PATH, BALL_LOWER_COORD_CLEAN_PATH, VIDEO_BALL_PROCESSED_PATH)
+    
+    #===============================================================================
+    # RECONSTRUCTION
+    #===============================================================================
+    #process_reconstruction(LANE_POINTS_PATH, BALL_COORD_CLEAR_PATH, BALL_COORD_TRANS_PATH)
+    #process_data_transformed(BALL_COORD_TRANS_PATH, BALL_COORD_TRANS_CLEAR_PATH)
+    process_reconstruction_deformed(BALL_COORD_TRANS_CLEAR_PATH, BALL_COORD_DEFORMED_PATH, TEMPLATE_LANE_PATH)
 
-    detection_ball(csv)
-    ...
-    if video:
-        process_video_ball(df)
+    #===============================================================================
+    # TRAJECTORY
+    #===============================================================================
+    #trajectory_on_video(INPUT_VIDEO_PATH, BALL_COORD_TRANS_CLEAR_PATH, LANE_POINTS_PATH, VIDEO_TRAJ_ON_RECORDING, BALL_LOWER_COORD_PATH)
+    trajectory_on_reconstruction(INPUT_VIDEO_PATH, BALL_COORD_TRANS_CLEAR_PATH, VIDEO_TRAJ_ON_LANE)
+    trajectory_on_reconstruction_deformed(INPUT_VIDEO_PATH, BALL_COORD_DEFORMED_PATH, TEMPLATE_LANE_PATH, VIDEO_TRAJ_ON_LANE_DEFORMED)
+
+    #===============================================================================
+    # SPIN
+    #===============================================================================
+    process_spin(INPUT_VIDEO_PATH, BALL_LOWER_COORD_CLEAN_PATH, ROTATION_DATA_PATH)
+    spin_post_processing(ROTATION_DATA_PATH, ROTATION_DATA_PROCESSED_PATH, BALL_LOWER_COORD_CLEAN_PATH, INPUT_VIDEO_PATH)
+    spin_video_creation(INPUT_VIDEO_PATH, VIDEO_SPHERE_PATH, ROTATION_DATA_PROCESSED_PATH)
+
+    #===============================================================================
+    # FINAL VIDEO
+    #===============================================================================
+    create_final_video(VIDEO_TRAJ_ON_RECORDING, VIDEO_TRAJ_ON_LANE_DEFORMED, VIDEO_SPHERE_PATH, VIDEO_FINAL_PATH)

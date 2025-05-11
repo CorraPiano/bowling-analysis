@@ -21,11 +21,11 @@ https://github.com/user-attachments/assets/22ac1be7-cdbc-4d03-9ea5-d1e6766af4ee
 
 ## Techniques Used
 
-- Object detection (ball tracking) using OpenCV
+- Lines and ball detection using OpenCV
 - Frame extraction and video preprocessing
 - Lane and background segmentation
 - 3D trajectory reconstruction
-- Spin and rotation estimation
+- Spin and rotation estimation using Optical Flow
 - Visualization and result compilation
 
 ## Repository structure
@@ -97,3 +97,7 @@ For questions or collaboration inquiries, feel free to reach out:
 
 - Davide Corradina – Mail: davi.corra@libero.it GitHub: CorraPiano
 - Michele Fassini – Mail: ___ GitHub: MicheleFassini
+
+## Mentions
+
+The videos to test the program were taken from YouTube.

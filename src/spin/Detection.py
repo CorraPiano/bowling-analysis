@@ -4,7 +4,7 @@ import cv2
 import pandas as pd
 import math
 
-from utility.Fill_frames import fill_frames
+from utility.Fill_frames import fill_frames, fill_frames_with_axis
 
 # ==============================================================================
 #                               HELPER FUNCTIONS
@@ -154,4 +154,9 @@ def process_spin(input_video_path, input_csv_path, output_csv_path):
 
     output_df = pd.DataFrame(output_data)
     output_df.to_csv(output_csv_path, index=False)
+
+    # I save the final csv file with the all missing points
+    output_df = fill_frames_with_axis(input_video_path, output_csv_path)
+    output_df.to_csv(output_csv_path, index=False)
+
     print(f"Saved rotation data to {output_csv_path}")

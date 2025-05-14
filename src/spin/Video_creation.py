@@ -1,12 +1,8 @@
 import cv2
-from pathlib import Path
 import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.animation import FFMpegWriter
-import time
 
 
 # ==============================================================================
@@ -151,7 +147,7 @@ def create_sphere_video(df, output_path, fps=30):
                 ax.axis('off')
 
                 # Draw the text
-                ax.text2D(0.0, 0.09, f'N/D rad/s', ha='center', va='center', fontsize=30, color='black',
+                ax.text2D(0.0, 0.09, 'N/D rad/s', ha='center', va='center', fontsize=30, color='black',
                             bbox=dict(facecolor='none', edgecolor='black', boxstyle='round,pad=0.3', linewidth=2))
 
                 writer.grab_frame()

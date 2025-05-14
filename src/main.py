@@ -4,11 +4,10 @@ import cv2
 from lane_detection.Background_Motion import estimate_background_motion
 from lane_detection.Bottom_Line_Detection import get_bottom_lines
 from lane_detection.Bottom_Line_Postprocessing import postprocessing_bottom_lines
-from lane_detection.Lane_Detection import generate_video_lines, publish_csv_lane_points         # TODO: remove this import
 from lane_detection.Lateral_Lines_Postprocessing import postprocessing_lateral_lines
 from lane_detection.Lateral_Lines_detection import get_lateral_lines
 from lane_detection.Upper_Line_Detection import get_upper_lines
-from lane_detection.Upper_Line_Postprocessing import create_points_df, postprocessing_top_bottom, postprocessing_top_still
+from lane_detection.Upper_Line_Postprocessing import postprocessing_upper_lines, publish_csv_lane_points, generate_video_lines 
 
 from ball_detection.Detection import process_video_with_roi
 from ball_detection.Post_processing_outliers import process_data
@@ -40,35 +39,35 @@ if __name__ == "__main__":
     #Lane detection
     INPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / f"recording_{VIDEO_NUM}" / f"Recording_{VIDEO_NUM}.mp4")
     TEMPLATE_PIN_PATH = str(PROJECT_ROOT / "data" / "auxiliary_data" / "pin_template" / "Template_pin_3.png")
-    VIDEO_LANE_DETECTION_PATH = str(PROJECT_ROOT / "output_data" / "Lane_detection.mp4")
-    LANE_POINTS_PATH = str(PROJECT_ROOT / "output_data" / f"Lane_points_{VIDEO_NUM}.csv")
+    VIDEO_LANE_DETECTION_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_video" / f"Lane_detection_{VIDEO_NUM}.mp4")
+    LANE_POINTS_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_data" / f"Lane_points_{VIDEO_NUM}.csv")
 
     #Ball detection
-    VIDEO_BALL_DETECTION_PATH = str(PROJECT_ROOT / "output_data" / f"Ball_detected_raw_{VIDEO_NUM}.mp4")
-    BALL_COORD_PATH = str(PROJECT_ROOT / "output_data" / f"Circle_positions_raw_{VIDEO_NUM}.csv")
-    BALL_COORD_CLEAR_PATH = str(PROJECT_ROOT / "output_data" / f"Circle_positions_cleaned_{VIDEO_NUM}.csv")
-    BALL_COORD_TRANS_PATH = str(PROJECT_ROOT / "output_data" / f"Transformed_positions_raw_{VIDEO_NUM}.csv")
-    BALL_COORD_TRANS_CLEAR_PATH = str(PROJECT_ROOT / "output_data" / f"Transformed_positions_processed_{VIDEO_NUM}.csv")
-    VIDEO_TRAJ_ON_RECORDING = str(PROJECT_ROOT / "output_data" / f"Tracked_output_{VIDEO_NUM}.mp4")
-    BALL_LOWER_COORD_PATH = str(PROJECT_ROOT / "output_data" /  f"Ball_lower_point_raw_{VIDEO_NUM}.csv")
-    BALL_LOWER_COORD_CLEAN_PATH = str(PROJECT_ROOT / "output_data" /  f"Adjusted_positions_{VIDEO_NUM}.csv")
-    VIDEO_BALL_PROCESSED_PATH = str(PROJECT_ROOT / "output_data" /  f"Ball_detected_processed_{VIDEO_NUM}.mp4")
+    VIDEO_BALL_DETECTION_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_video" / f"Ball_detected_raw_{VIDEO_NUM}.mp4")
+    BALL_COORD_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_data" / f"Circle_positions_raw_{VIDEO_NUM}.csv")
+    BALL_COORD_CLEAR_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_data" / f"Circle_positions_cleaned_{VIDEO_NUM}.csv")
+    BALL_COORD_TRANS_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_data" / f"Transformed_positions_raw_{VIDEO_NUM}.csv")
+    BALL_COORD_TRANS_CLEAR_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_data" / f"Transformed_positions_processed_{VIDEO_NUM}.csv")
+    VIDEO_TRAJ_ON_RECORDING = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_video" / f"Tracked_output_{VIDEO_NUM}.mp4")
+    BALL_LOWER_COORD_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_data" /  f"Ball_lower_point_raw_{VIDEO_NUM}.csv")
+    BALL_LOWER_COORD_CLEAN_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_data" /  f"Adjusted_positions_{VIDEO_NUM}.csv")
+    VIDEO_BALL_PROCESSED_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_video" /  f"Ball_detected_processed_{VIDEO_NUM}.mp4")
 
     #Reconstruction
-    BALL_COORD_DEFORMED_PATH = str(PROJECT_ROOT / "output_data" / f"Transformed_positions_deformed_{VIDEO_NUM}.csv")
+    BALL_COORD_DEFORMED_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_data" / f"Transformed_positions_deformed_{VIDEO_NUM}.csv")
 
     #Trajectory
-    VIDEO_TRAJ_ON_LANE = str(PROJECT_ROOT / "output_data" / f"Reconstructed_trajectory_processed_{VIDEO_NUM}.mp4")
+    VIDEO_TRAJ_ON_LANE = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}"  / f"Reconstructed_trajectory_processed_{VIDEO_NUM}.mp4")
     TEMPLATE_LANE_PATH = str(PROJECT_ROOT / "notebook" / "reconstruction" / "intermediate_data" / "Template_lane_1.png")
-    VIDEO_TRAJ_ON_LANE_DEFORMED = str(PROJECT_ROOT / "output_data" / f"Reconstructed_trajectory_deformed_{VIDEO_NUM}.mp4")
+    VIDEO_TRAJ_ON_LANE_DEFORMED = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / f"Reconstructed_trajectory_deformed_{VIDEO_NUM}.mp4")
 
     #Spin
-    ROTATION_DATA_PATH = str(PROJECT_ROOT / "output_data" / f"Rotation_data_{VIDEO_NUM}.csv")
-    ROTATION_DATA_PROCESSED_PATH = str(PROJECT_ROOT / "output_data" / f"Rotation_data_processed_{VIDEO_NUM}.csv")
-    VIDEO_SPHERE_PATH = str(PROJECT_ROOT / "output_data" / "Rotating_sphere.mp4")
+    ROTATION_DATA_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_data" / f"Rotation_data_{VIDEO_NUM}.csv")
+    ROTATION_DATA_PROCESSED_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_data" / f"Rotation_data_processed_{VIDEO_NUM}.csv")
+    VIDEO_SPHERE_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}"  / "Rotating_sphere.mp4")
 
     #Video creation
-    VIDEO_FINAL_PATH = str(PROJECT_ROOT / "output_data" / f"Final_{VIDEO_NUM}.mp4")
+    VIDEO_FINAL_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / f"Final_{VIDEO_NUM}.mp4")
 
 
 
@@ -82,11 +81,7 @@ if __name__ == "__main__":
     left_lines_raw, right_lines_raw = get_lateral_lines(cap, bottom_lines)
     left_lines, right_lines = postprocessing_lateral_lines(left_lines_raw, right_lines_raw, avg_motion)
     upper_lines_raw = get_upper_lines(cap, TEMPLATE_PIN_PATH, bottom_lines, left_lines, right_lines)
-    points_df = create_points_df(bottom_lines, left_lines, right_lines, upper_lines_raw)
-    if avg_motion > 1:
-        points_df = postprocessing_top_bottom(points_df, cap)
-    else:
-        points_df = postprocessing_top_still(points_df)
+    points_df = postprocessing_upper_lines(cap, bottom_lines, left_lines, right_lines, upper_lines_raw, avg_motion)
     generate_video_lines(cap, VIDEO_LANE_DETECTION_PATH, points_df)
     publish_csv_lane_points(LANE_POINTS_PATH, points_df)
 

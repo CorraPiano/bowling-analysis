@@ -1,11 +1,9 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from pathlib import Path
 from sklearn.linear_model import LinearRegression
 from scipy.ndimage import gaussian_filter1d
 
-from utility.Fill_frames import fill_frames, fill_frames_with_axis
+from utility.Fill_frames import fill_frames
 
 
 # ==============================================================================

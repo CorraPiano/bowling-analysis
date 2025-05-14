@@ -1,12 +1,16 @@
 import cv2
 import numpy as np
 
+""" Compute the determinant """
 
-''' Compute the determinant '''
+
 def det(a, b):
     return a[0] * b[1] - a[1] * b[0]
 
-''' Get the intersection point of two lines'''
+
+""" Get the intersection point of two lines"""
+
+
 def get_intersection(line_1, line_2):
     xdiff = (line_1[0] - line_1[2], line_2[0] - line_2[2])
     ydiff = (line_1[1] - line_1[3], line_2[1] - line_2[3])
@@ -15,15 +19,20 @@ def get_intersection(line_1, line_2):
     if div == 0:
         return None
 
-    d = (det((line_1[0], line_1[1]), (line_1[2], line_1[3])), 
-           det((line_2[0], line_2[1]), (line_2[2], line_2[3])))
+    d = (
+        det((line_1[0], line_1[1]), (line_1[2], line_1[3])),
+        det((line_2[0], line_2[1]), (line_2[2], line_2[3])),
+    )
     x = int(det(d, xdiff) / div)
     y = int(det(d, ydiff) / div)
     return x, y
 
-''' Calculate the distance between the two intersection points '''
+
+""" Calculate the distance between the two intersection points """
+
+
 def euclidean_distance(p1, p2):
-    return np.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
+    return np.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
 
 
 def cut_frame_triangle(frame, bottom_line, left_line, rigth_line):
@@ -53,7 +62,10 @@ def cut_frame_triangle(frame, bottom_line, left_line, rigth_line):
 
     return masked_frame, triangle
 
-''' Extraxt the brown and rose colors'''
+
+""" Extraxt the brown and rose colors"""
+
+
 def extract_br_frame(frame):
     # Convert frame to HSV color space
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -62,7 +74,7 @@ def extract_br_frame(frame):
     lower_brown = np.array([00, 00, 50])
     upper_brown = np.array([20, 255, 255])
 
-    # Rose (pinkish-red) 
+    # Rose (pinkish-red)
     lower_rose = np.array([150, 30, 200])
     upper_rose = np.array([180, 200, 255])
 
@@ -78,8 +90,11 @@ def extract_br_frame(frame):
 
     return brown_and_rose_frame
 
-''' Get a first estimate of the upper line 
-    by finding the y-point in the triangle where the horizontal line becomes 985 balck'''
+
+""" Get a first estimate of the upper line 
+    by finding the y-point in the triangle where the horizontal line becomes 985 balck"""
+
+
 def get_upper_horizontal_line_first_estimate(frame, triangle):
     # Threshold for black (treat anything darker than this as black)
     black_thresh = 30
@@ -105,13 +120,18 @@ def get_upper_horizontal_line_first_estimate(frame, triangle):
         print("No row found with <2% non-black pixels after y=100.")
         return None
 
-    #  Define the horizontal line  
-    horizontal_upper_line =[0, y, width, y]
+    #  Define the horizontal line
+    horizontal_upper_line = [0, y, width, y]
 
     return horizontal_upper_line
 
-''' Apply template matching too tdetect the bottom point of the pins'''
-def template_matching(br_frame, template, upper_horizontal_estimated, left_line, right_line):
+
+""" Apply template matching too tdetect the bottom point of the pins"""
+
+
+def template_matching(
+    br_frame, template, upper_horizontal_estimated, left_line, right_line
+):
     # computed estimated intersection between upper and lateral lines
     intersection_left = get_intersection(left_line, upper_horizontal_estimated)
     intersection_right = get_intersection(right_line, upper_horizontal_estimated)
@@ -120,7 +140,7 @@ def template_matching(br_frame, template, upper_horizontal_estimated, left_line,
 
     # Compute the correct dimension of the template
     lane_width = 1066
-    pin_height_real = 381 + 40 # 20 is the margin taken from the template
+    pin_height_real = 381 + 40  # 20 is the margin taken from the template
     pin_height_template = template.shape[0]
     pin_width_template = template.shape[1]
 
@@ -132,7 +152,6 @@ def template_matching(br_frame, template, upper_horizontal_estimated, left_line,
     new_width = int(pin_width_template * f)
     new_height = int(pin_height_template * f)
 
-
     # --- Template matching ---
     gray_frame = cv2.cvtColor(br_frame, cv2.COLOR_BGR2GRAY)
 
@@ -140,22 +159,27 @@ def template_matching(br_frame, template, upper_horizontal_estimated, left_line,
     method = cv2.TM_CCOEFF
 
     img = gray_frame.copy()
-    result = cv2.matchTemplate(img, template, method) # This performs Convolution, the output will be (Width - w + 1, Height - h + 1)
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result) # This returns min, max values, min, max locations
+    result = cv2.matchTemplate(
+        img, template, method
+    )  # This performs Convolution, the output will be (Width - w + 1, Height - h + 1)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(
+        result
+    )  # This returns min, max values, min, max locations
     location = max_loc
-        
-    bottom_right = (location[0] + new_width, location[1] + new_height)
 
+    bottom_right = (location[0] + new_width, location[1] + new_height)
 
     return bottom_right
 
+
 """Extend a line to the image boundaries."""
+
+
 def get_extended_line(line, img_width=2000, img_height=2000):
-    
     x1, y1, x2, y2 = line
     if x1 == x2:
         return (x1, 0), (x2, img_height)
-    
+
     m = (y2 - y1) / (x2 - x1)
     b = y1 - m * x1
     points = []
@@ -178,12 +202,15 @@ def get_extended_line(line, img_width=2000, img_height=2000):
 
     return extended_line if len(points) >= 2 else [x1, y1, x2, y2]
 
-''' correct the inclination of the founded upper line'''
+
+""" correct the inclination of the founded upper line"""
+
+
 def correct_inclination(bottom_right, bottom_line, frame):
     # set the line horizontal
     ux1 = bottom_right[0]
     uy1 = bottom_right[1]
-    ux2 = bottom_right[0]+100
+    ux2 = bottom_right[0] + 100
     uy2 = bottom_right[1]
 
     # Calculate the extended line points
@@ -192,22 +219,34 @@ def correct_inclination(bottom_right, bottom_line, frame):
     upper_line = get_extended_line([ux1, uy1, ux2, uy2], width, height)
     return upper_line
 
-''' Compute the upper line in a single frame'''
+
+""" Compute the upper line in a single frame"""
+
+
 def compute_upper_line(frame, template, bottom_line, left_line, right_line):
-    cutted_frame, triangle = cut_frame_triangle(frame, bottom_line, left_line, right_line)
+    cutted_frame, triangle = cut_frame_triangle(
+        frame, bottom_line, left_line, right_line
+    )
     br_frame = extract_br_frame(cutted_frame)
-    upper_horizontal_estimated = get_upper_horizontal_line_first_estimate(br_frame, triangle)
-    bottom_rigth_point_pin = template_matching(cutted_frame, template, upper_horizontal_estimated, left_line, right_line)
-    upper_line = correct_inclination(bottom_rigth_point_pin, bottom_line, frame) 
+    upper_horizontal_estimated = get_upper_horizontal_line_first_estimate(
+        br_frame, triangle
+    )
+    bottom_rigth_point_pin = template_matching(
+        cutted_frame, template, upper_horizontal_estimated, left_line, right_line
+    )
+    upper_line = correct_inclination(bottom_rigth_point_pin, bottom_line, frame)
     return upper_line
 
-''' Compute the upper lines from the bottom and lateral lines'''
+
+""" Compute the upper lines from the bottom and lateral lines"""
+
+
 def get_upper_lines(cap, template_path, bottom_lines, left_lines, right_lines):
     # Reset the video to the beginning
     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
     # get template
-    template = cv2.imread(template_path, 0) # 0 for the grayscale image
+    template = cv2.imread(template_path, 0)  # 0 for the grayscale image
 
     # Loop through each frame in the video
     frame_index = 0
@@ -215,11 +254,20 @@ def get_upper_lines(cap, template_path, bottom_lines, left_lines, right_lines):
     while frame_index < len(bottom_lines):
         ret, video_frame = cap.read()
         if not ret:
-            print("Failed to read the frame at iteration (Lateral linesdetection)", frame_index)
+            print(
+                "Failed to read the frame at iteration (Lateral linesdetection)",
+                frame_index,
+            )
             break
 
         # Compute the three lines in the frame
-        upper_line = compute_upper_line(frame=video_frame, template=template, bottom_line=bottom_lines[frame_index], left_line=left_lines[frame_index], right_line=right_lines[frame_index]) 
+        upper_line = compute_upper_line(
+            frame=video_frame,
+            template=template,
+            bottom_line=bottom_lines[frame_index],
+            left_line=left_lines[frame_index],
+            right_line=right_lines[frame_index],
+        )
 
         # Append the lines to the lists
         upper_lines.append(upper_line)
@@ -227,4 +275,3 @@ def get_upper_lines(cap, template_path, bottom_lines, left_lines, right_lines):
         # Increment the frame index
         frame_index += 1
     return upper_lines
-

@@ -1185,7 +1185,6 @@ def generate_video_lines(cap, output_path, points_df):
     while frame_index < len(points_df):
         ret, video_frame = cap.read()
         if not ret:
-            print("Failed to read the frame at iteration (Generate video)", frame_index)
             break
 
         # draw the lines on the frame   

@@ -189,17 +189,17 @@ def spin_post_processing(input_csv_path, output_csv_path, input_original_csv_pat
     flip_condition = df['z_axis'] > 0.25 if z_axis_avg < 0 else df['z_axis'] < 0.25
     df.loc[flip_condition, ['x_axis', 'y_axis', 'z_axis']] *= -1
 
-    y_axis_avg = df['y_axis'].mean()
+    x_axis_avg = df['x_axis'].mean()
 
-    df_y = df.copy()
-    y_condition = df_y['y_axis'] > -y_axis_avg if y_axis_avg < 0 else df_y['y_axis'] < -y_axis_avg
-    df_y.loc[y_condition, ['x_axis', 'y_axis', 'z_axis', 'angle']] = np.nan
-
-    x_axis_avg = df_y['x_axis'].mean()
-
-    df_x = df_y.copy()
+    df_x = df.copy()
     x_condition = df_x['x_axis'] > -x_axis_avg + 0.1 if x_axis_avg < 0 else df_x['x_axis'] < -x_axis_avg + 0.1
     df_x.loc[x_condition, ['x_axis', 'y_axis', 'z_axis', 'angle']] = np.nan
+
+    y_axis_avg = df_x['y_axis'].mean()
+
+    df_y = df_x.copy()
+    y_condition = df_y['y_axis'] > -y_axis_avg if y_axis_avg < 0 else df_y['y_axis'] < -y_axis_avg
+    df_y.loc[y_condition, ['x_axis', 'y_axis', 'z_axis', 'angle']] = np.nan
 
     # Multiple outlier removal passes
     filtered_df = remove_outliers(df_x, threshold=0.5)

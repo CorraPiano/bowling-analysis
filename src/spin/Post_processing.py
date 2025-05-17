@@ -156,7 +156,7 @@ def interpolate_axes_from_existing(new_df, old_df):
     return interpolated_df
 
 
-def compute_z_axis_from_xy(df, y_axis_avg):
+def compute_z_axis_from_xy(df, z_axis_avg):
     df = df.copy()
     
     # Compute 1 - x^2 - y^2
@@ -167,10 +167,10 @@ def compute_z_axis_from_xy(df, y_axis_avg):
     z_values[z_values < 0] = np.nan
 
     # Calculate z = sqrt(1 - x^2 - y^2)
-    if y_axis_avg < 0:
-        df['z_axis'] = np.sqrt(z_values)
-    else:
+    if z_axis_avg < 0:
         df['z_axis'] = -np.sqrt(z_values)
+    else:
+        df['z_axis'] = np.sqrt(z_values)
 
     return df
 
@@ -202,7 +202,7 @@ def spin_post_processing(input_csv_path, output_csv_path, input_original_csv_pat
     df_y.loc[y_condition, ['x_axis', 'y_axis', 'z_axis', 'angle']] = np.nan
 
     # Multiple outlier removal passes
-    filtered_df = remove_outliers(df_x, threshold=0.5)
+    filtered_df = remove_outliers(df_y, threshold=0.5)
     filtered_df = remove_outliers(filtered_df, threshold=0.3)
     filtered_df = remove_outliers(filtered_df, threshold=0.3)
 
@@ -242,7 +242,7 @@ def spin_post_processing(input_csv_path, output_csv_path, input_original_csv_pat
     # Scaling and computing z_axis
     df_scaled = scale_x_axis(smoothed_df)
     df_scaled = scale_y_axis(df_scaled)
-    df_processed = compute_z_axis_from_xy(df_scaled, y_axis_avg)
+    df_processed = compute_z_axis_from_xy(df_scaled, z_axis_avg)
 
     # Create a mask for rows where A has NaN in all three columns and B has valid values
     mask = (

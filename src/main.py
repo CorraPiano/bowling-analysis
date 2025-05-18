@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     #Lane detection
     INPUT_VIDEO_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / f"Recording_{VIDEO_NUM}.mp4") 
-    TEMPLATE_PIN_PATH = str(PROJECT_ROOT / "output_data" / "pin_template" / "Template_pin.png")
+    TEMPLATE_PIN_PATH = str(PROJECT_ROOT / "output_data" / "templates" / "Template_pin.png")
     VIDEO_LANE_DETECTION_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_video" / f"Lane_detection_{VIDEO_NUM}.mp4")
     LANE_POINTS_PATH = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / "other_data" / f"Lane_points_{VIDEO_NUM}.csv")
 
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     #Trajectory
     VIDEO_TRAJ_ON_LANE = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}"  / f"Reconstructed_trajectory_processed_{VIDEO_NUM}.mp4")
-    TEMPLATE_LANE_PATH = str(PROJECT_ROOT / "notebook" / "reconstruction" / "intermediate_data" / "Template_lane_1.png")
+    TEMPLATE_LANE_PATH = str(PROJECT_ROOT / "output_data" / "templates" / "Template_lane.png")
     VIDEO_TRAJ_ON_LANE_DEFORMED = str(PROJECT_ROOT / "output_data" / f"recording_{VIDEO_NUM}" / f"Reconstructed_trajectory_deformed_{VIDEO_NUM}.mp4")
 
     #Spin

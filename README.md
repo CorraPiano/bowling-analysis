@@ -79,7 +79,9 @@ https://github.com/user-attachments/assets/22ac1be7-cdbc-4d03-9ea5-d1e6766af4ee
 2. Install the required dependencies:
    ```bash
    pip install -r requirements.txt
-   Install FFmpeg from the link https://ffmpeg.org/download.html
+    ```
+   ```bash
+    Install FFmpeg from the link https://ffmpeg.org/download.html
     ```
 3. Navigate to the `src` directory:
    ```bash

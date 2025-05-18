@@ -19,8 +19,6 @@ https://github.com/user-attachments/assets/bf524f37-c5a3-4fe4-ac27-57b20a4289c3
 
 https://github.com/user-attachments/assets/22ac1be7-cdbc-4d03-9ea5-d1e6766af4ee
 
-https://github.com/CorraPiano/bowling-analysis/blob/main/output_data/recording_4/Final_4.mp4
-
 ## Techniques Used
 
 - Lines and ball detection using OpenCV
@@ -82,9 +80,7 @@ https://github.com/CorraPiano/bowling-analysis/blob/main/output_data/recording_4
    ```bash
    pip install -r requirements.txt
     ```
-   ```bash
     Install FFmpeg from the link https://ffmpeg.org/download.html
-    ```
 3. Navigate to the `src` directory:
    ```bash
    cd src

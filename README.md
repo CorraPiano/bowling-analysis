@@ -15,9 +15,9 @@ This project focuses on detecting the **trajectory** and **spin** of a bowling b
 
 Example outputs from the analysis pipeline:
 
-https://github.com/user-attachments/assets/bf524f37-c5a3-4fe4-ac27-57b20a4289c3
+https://github.com/user-attachments/assets/90463700-498f-4987-9d5a-1572e3613d1d
 
-https://github.com/user-attachments/assets/22ac1be7-cdbc-4d03-9ea5-d1e6766af4ee
+https://github.com/user-attachments/assets/69ed840a-b4c7-4e7b-ab15-2530a4a06a34
 
 https://github.com/user-attachments/assets/b03cc3f3-2def-4e3e-a547-c772e84172c6
 

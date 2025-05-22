@@ -31,43 +31,46 @@ https://github.com/user-attachments/assets/22ac1be7-cdbc-4d03-9ea5-d1e6766af4ee
 ## Repository structure
 
 ```bash
-├── data/                      # Raw and processed data
-│   ├── auxiliary_data/        # Shared resources across modules
-│   ├── recording_1/           # Data for recording 1
-│   ├── recording_2/           # Data for recording 2
-│   │   ├── frames/                    
-│   │   ├── Output_detected_test.mp4    
-│   │   ├── Recording_2_normal_speed.mp4
-│   │   ├── Recording_2_slow_motion.mp4
-│   │   ├── Tracked_output.mp4
-│   ├── recording_3/           # Data for recording 3
-│   └── ...                    # Additional recordings
+├── data/                          # Raw and processed data
+│   ├── auxiliary_data/            # Shared resources (e.g., circle_positions/)
+│   ├── recording_1/               # Data for recording 1
+│   ├── recording_2/               # Data for recording 2
+│   ├── recording_3/               # Data for recording 3
+│   └── recording_4/               # Data for recording 4
 
-├── documents/                 # Notes and reference materials
-│   ├── papers/                # Research papers
-│   │   └── AReal-TimeBallDetectionApproachUsingCNN.pdf
-│   ├── Links.txt             
-│   ├── Notes.txt             
-│   └── Repository_structure.txt 
+├── documents/                     # Notes and reference materials
+│   ├── papers/                    # Research papers
+│   ├── Links.txt                  # Useful links
+│   └── Notes.txt                  # Project notes
 
-├── notebook/                  # Jupyter notebooks
-│   ├── ball_detection/        
-│   ├── lane_detection/        
-│   ├── reconstruction/        
-│   ├── spin/                  
-│   ├── trajectory/            
-│   ├── various_tests/         
-│   └── video_creation/        
+├── notebook/                      # Jupyter notebooks for analysis
+│   ├── ball_detection/            # Ball detection notebooks
+│   ├── lane_detection/            # Lane detection notebooks
+│   ├── reconstruction/            # 3D reconstruction notebooks
+│   ├── spin/                      # Spin analysis notebooks
+│   ├── trajectory/                # Trajectory analysis notebooks
+│   ├── various_tests/             # Miscellaneous tests
+│   └── video_creation/            # Video creation notebooks
 
-├── src/                       # Source code
-│   ├── main.py                # Project entry point
-│   ├── ball_detection/        # Ball detection logic
-│   │   └── Detection.py       
-│   ├── lane_detection/        
-│   ├── reconstruction/        
-│   ├── spin/                  
-│   ├── trajectory/            
-│   └── utility/               # Utility functions
+├── output_data/                   # Output videos and results
+│   ├── recording_1/               # Outputs for recording 1
+│   ├── recording_2/               # Outputs for recording 2
+│   ├── recording_3/               # Outputs for recording 3
+│   ├── recording_4/               # Outputs for recording 4
+│   └── templates/                 # Output templates
+
+├── src/                           # Source code
+│   ├── app.py                     # Web app entry point
+│   ├── main.py                    # Main script to run the project
+│   ├── ball_detection/            # Ball detection logic
+│   ├── lane_detection/            # Lane detection logic
+│   ├── reconstruction/            # 3D reconstruction logic
+│   ├── spin/                      # Spin analysis logic
+│   ├── trajectory/                # Trajectory analysis logic
+│   └── utility/                   # Utility functions
+
+├── README.md                      # Project overview and instructions
+└── requirements.txt               # Python dependencies
 ```
 
 ## Hot to run
@@ -75,6 +78,8 @@ https://github.com/user-attachments/assets/22ac1be7-cdbc-4d03-9ea5-d1e6766af4ee
    ```bash
    git clone https://github.com/your-username/bowling-trajectory-spin.git
    cd bowling-trajectory-spin
+   ```
+   Replace `your-username` with your GitHub username.
 
 2. Install the required dependencies:
    ```bash
@@ -89,15 +94,25 @@ https://github.com/user-attachments/assets/22ac1be7-cdbc-4d03-9ea5-d1e6766af4ee
    ```bash
    python main.py
    ```
+   Alternatively, you can launch the web app (requires [Streamlit](https://streamlit.io/)):
+   ```bash
+   streamlit run app.py
+   ```
+   This will open an interactive web interface in your browser, allowing you to execute the full bowling analysis pipeline without using the command line.
 5. Follow the prompts to select the recording and adjust parameters as needed.
 6. Use Jupyter notebooks in the `notebook/` directory for analysis and visualization.
 
 ## Contacts
 
-For questions or collaboration inquiries, feel free to reach out:
+For questions, feedback, or collaboration, feel free to reach out:
 
-- Davide Corradina – Mail: davi.corra@libero.it GitHub: CorraPiano
-- Michele Fassini – Mail: michele.fassini@icloud.com GitHub: MicheleFassini
+- **Davide Corradina**  
+  [davi.corra@libero.it](mailto:davi.corra@libero.it)  
+  GitHub: [CorraPiano](https://github.com/CorraPiano)
+
+- **Michele Fassini**  
+  [michele.fassini@icloud.com](mailto:michele.fassini@icloud.com)  
+  GitHub: [MicheleFassini](https://github.com/MicheleFassini)
 
 ## Mentions
 

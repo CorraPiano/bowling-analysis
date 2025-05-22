@@ -1,6 +1,5 @@
 from collections import deque
 import numpy as np
-from pathlib import Path
 import pandas as pd
 from scipy.signal import medfilt
 from scipy.signal import savgol_filter
@@ -8,6 +7,7 @@ from scipy.signal import savgol_filter
 # ==============================================================================
 #                              AUXILIARY FUNCTIONS
 # ==============================================================================
+
 
 def remove_low_y_coordinates(df):
     """
@@ -17,11 +17,12 @@ def remove_low_y_coordinates(df):
         The DataFrame with low y-coordinates removed.
     """
     df_cleaned = df.copy()
-    df_cleaned['y'] = pd.to_numeric(df_cleaned['y'], errors='coerce')
-    mask = (df_cleaned['y'] > 1750) | (df_cleaned['y'] < 30)
-    df_cleaned.loc[mask, ['x', 'y']] = np.nan
+    df_cleaned["y"] = pd.to_numeric(df_cleaned["y"], errors="coerce")
+    mask = (df_cleaned["y"] > 1750) | (df_cleaned["y"] < 30)
+    df_cleaned.loc[mask, ["x", "y"]] = np.nan
 
     return df_cleaned
+
 
 def remove_low_y_coordinates_v2(df):
     """
@@ -31,20 +32,21 @@ def remove_low_y_coordinates_v2(df):
         The DataFrame with low y-coordinates removed.
     """
     df_cleaned = df.copy()
-    df_cleaned['y'] = pd.to_numeric(df_cleaned['y'], errors='coerce')
+    df_cleaned["y"] = pd.to_numeric(df_cleaned["y"], errors="coerce")
     low_y_count = 0
     last_five_y = deque(maxlen=4)
 
     for index, row in df.iterrows():
-        last_five_y.append(row['y'])
+        last_five_y.append(row["y"])
 
         if len(last_five_y) == 4 and all(y < 110 for y in last_five_y):
             low_y_count += 1
 
         if low_y_count >= 4:
-            df_cleaned.loc[index, ['x', 'y']] = np.nan
+            df_cleaned.loc[index, ["x", "y"]] = np.nan
 
     return df_cleaned
+
 
 def rolling_median_mad(values, window_size):
     """
@@ -72,7 +74,9 @@ def rolling_median_mad(values, window_size):
     return np.array(median_values), np.array(mad_values)
 
 
-def remove_outliers_with_rolling(df: pd.DataFrame, threshold: float = 2.5, window_size: int = 2) -> pd.DataFrame:
+def remove_outliers_with_rolling(
+    df: pd.DataFrame, threshold: float = 2.5, window_size: int = 2
+) -> pd.DataFrame:
     """
     Remove outliers from the DataFrame using a rolling median and MAD method.
     Returns:
@@ -80,22 +84,29 @@ def remove_outliers_with_rolling(df: pd.DataFrame, threshold: float = 2.5, windo
         The DataFrame with outliers removed.
     """
     df_clean = df.copy()
-    initial_nan_mask = df_clean[['x', 'y']].isna().any(axis=1)
+    initial_nan_mask = df_clean[["x", "y"]].isna().any(axis=1)
 
-    x_median, x_mad = rolling_median_mad(df_clean['x'].values, window_size)
-    y_median, y_mad = rolling_median_mad(df_clean['y'].values, window_size)
-    
-    distances = np.sqrt((df_clean['x'].values - x_median) ** 2 + (df_clean['y'].values - y_median) ** 2)
+    x_median, x_mad = rolling_median_mad(df_clean["x"].values, window_size)
+    y_median, y_mad = rolling_median_mad(df_clean["y"].values, window_size)
+
+    distances = np.sqrt(
+        (df_clean["x"].values - x_median) ** 2 + (df_clean["y"].values - y_median) ** 2
+    )
 
     if np.nanmedian(np.abs(distances - np.nanmedian(distances))) == 0:
         return df_clean
 
-    modified_z = 0.6745 * (distances - np.nanmedian(distances)) / np.nanmedian(np.abs(distances - np.nanmedian(distances)))
+    modified_z = (
+        0.6745
+        * (distances - np.nanmedian(distances))
+        / np.nanmedian(np.abs(distances - np.nanmedian(distances)))
+    )
     mask_outliers = np.abs(modified_z) < threshold
     new_outlier_mask = ~mask_outliers & ~initial_nan_mask
-    df_clean.loc[new_outlier_mask, ['x', 'y']] = np.nan
+    df_clean.loc[new_outlier_mask, ["x", "y"]] = np.nan
 
     return df_clean
+
 
 def median_filter(df, kernel_size=3):
     """
@@ -105,12 +116,13 @@ def median_filter(df, kernel_size=3):
         The DataFrame with median filtering applied.
     """
     df = df.copy()
-    df['x'] = medfilt(df['x'], kernel_size=kernel_size)
-    df['y'] = medfilt(df['y'], kernel_size=kernel_size)
+    df["x"] = medfilt(df["x"], kernel_size=kernel_size)
+    df["y"] = medfilt(df["y"], kernel_size=kernel_size)
 
-    df = df[df['x'] > 0]
-    df = df[df['y'] > 0] 
+    df = df[df["x"] > 0]
+    df = df[df["y"] > 0]
     return df
+
 
 def Savitzky_Golay_filter(df, window_length=45, polyorder=3):
     """
@@ -120,12 +132,13 @@ def Savitzky_Golay_filter(df, window_length=45, polyorder=3):
         The DataFrame with Savitzky-Golay filtering applied.
     """
     df = df.copy()
-    df['x'] = savgol_filter(df['x'], window_length=window_length, polyorder=polyorder)
-    df['y'] = savgol_filter(df['y'], window_length=window_length, polyorder=polyorder)
-    #df['x'] = df['x'].round().astype(int)
-    #df['y'] = df['y'].round().astype(int)
+    df["x"] = savgol_filter(df["x"], window_length=window_length, polyorder=polyorder)
+    df["y"] = savgol_filter(df["y"], window_length=window_length, polyorder=polyorder)
+    # df['x'] = df['x'].round().astype(int)
+    # df['y'] = df['y'].round().astype(int)
 
     return df
+
 
 def interpolate_missing_coordinates(df):
     """
@@ -134,21 +147,22 @@ def interpolate_missing_coordinates(df):
     pd.DataFrame
         The DataFrame with missing coordinates interpolated.
     """
-    df = df.copy().set_index('frame')
-    
+    df = df.copy().set_index("frame")
+
     full_index = range(df.index.min(), df.index.max() + 1)
     df_full = df.reindex(full_index)
-    
-    df_full['x'] = df_full['x'].interpolate(method='linear')
-    df_full['y'] = df_full['y'].interpolate(method='linear')
-    
-    df_full['x'] = df_full['x'].bfill().ffill()
-    df_full['y'] = df_full['y'].bfill().ffill()
-    
-    df_full = df_full.reset_index().rename(columns={'index': 'frame'})
+
+    df_full["x"] = df_full["x"].interpolate(method="linear")
+    df_full["y"] = df_full["y"].interpolate(method="linear")
+
+    df_full["x"] = df_full["x"].bfill().ffill()
+    df_full["y"] = df_full["y"].bfill().ffill()
+
+    df_full = df_full.reset_index().rename(columns={"index": "frame"})
     df_full = Savitzky_Golay_filter(df_full)
-    
+
     return df_full
+
 
 # ==============================================================================
 #                             PROCESSING FUNCTIONS

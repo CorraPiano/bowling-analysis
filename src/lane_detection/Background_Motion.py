@@ -36,7 +36,7 @@ def estimate_background_motion(cap: cv2.VideoCapture) -> float:
             dst_pts = np.float32([kp[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
 
             # Use RANSAC to filter out moving objects
-            if len(src_pts) >= 10: 
+            if len(src_pts) >= 10:
                 H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
                 if H is not None:
                     # Extract translation components from homography

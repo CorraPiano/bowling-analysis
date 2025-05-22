@@ -13,6 +13,7 @@ LINE_THICKNESS = 5
 #                          AUXILIARY FUNCTIONS
 # ==============================================================================
 
+
 def load_positions_from_csv(csv_file_path):
     """
     Load (frame_num, x, y) positions from a CSV file.
@@ -20,7 +21,7 @@ def load_positions_from_csv(csv_file_path):
         A dictionary with frame numbers as keys and (x, y) tuples as values.
     """
     positions = {}
-    with open(csv_file_path, mode='r') as file:
+    with open(csv_file_path, mode="r") as file:
         reader = csv.reader(file)
         next(reader)
         for row in reader:
@@ -41,7 +42,10 @@ def load_positions_from_csv(csv_file_path):
 #                           PRINCIPAL FUNCTION
 # ==============================================================================
 
-def trajectory_on_reconstruction_deformed(input_video_path, csv_file_path, csv_template_path, output_video_path):
+
+def trajectory_on_reconstruction_deformed(
+    input_video_path, csv_file_path, csv_template_path, output_video_path
+):
     """
     Main function to read a video, overlay a trajectory from a CSV file, and save the output.
     """
@@ -54,7 +58,7 @@ def trajectory_on_reconstruction_deformed(input_video_path, csv_file_path, csv_t
         exit()
 
     fps = int(cap.get(cv2.CAP_PROP_FPS))
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     out = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
 
     positions = load_positions_from_csv(csv_file_path)
@@ -74,7 +78,9 @@ def trajectory_on_reconstruction_deformed(input_video_path, csv_file_path, csv_t
             trajectory.append((x, y))
 
         for i in range(1, len(trajectory)):
-            cv2.line(frame, trajectory[i - 1], trajectory[i], BALL_COLOR, LINE_THICKNESS)
+            cv2.line(
+                frame, trajectory[i - 1], trajectory[i], BALL_COLOR, LINE_THICKNESS
+            )
 
         if frame_count in positions:
             cv2.circle(frame, (x, y), BALL_RADIUS, BALL_COLOR, -1)

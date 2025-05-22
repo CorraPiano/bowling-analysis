@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-from pathlib import Path
 import pandas as pd
 from sklearn.linear_model import RANSACRegressor, LinearRegression
 
@@ -8,6 +7,7 @@ from sklearn.linear_model import RANSACRegressor, LinearRegression
 # ==============================================================================
 #                              AUXILIARY FUNCTIONS
 # ==============================================================================
+
 
 def decreasing_func(x, a, b, c):
     """
@@ -18,6 +18,7 @@ def decreasing_func(x, a, b, c):
     """
     return a * np.exp(-b * x) + c
 
+
 def process_radius(df, median_window=25, quantile_baseline=0.05, ransac_threshold=0.5):
     """
     Process the radius data in the DataFrame using a robust fitting method.
@@ -26,34 +27,45 @@ def process_radius(df, median_window=25, quantile_baseline=0.05, ransac_threshol
         The processed DataFrame with fitted radius values.
     """
 
-    all_frames = pd.DataFrame({'frame': np.arange(int(df['frame'].min()), int(df['frame'].max()) + 1)})
-    df = pd.merge(all_frames, df, on='frame', how='left')
+    all_frames = pd.DataFrame(
+        {"frame": np.arange(int(df["frame"].min()), int(df["frame"].max()) + 1)}
+    )
+    df = pd.merge(all_frames, df, on="frame", how="left")
 
-    df['median'] = df['radius'].rolling(window=median_window, center=True, min_periods=1).median()
+    df["median"] = (
+        df["radius"].rolling(window=median_window, center=True, min_periods=1).median()
+    )
 
-    c_est = df['radius'].quantile(quantile_baseline)
+    c_est = df["radius"].quantile(quantile_baseline)
 
     eps = 1e-6
-    valid = df['radius'] > (c_est + eps)
+    valid = df["radius"] > (c_est + eps)
 
     if valid.sum() < 10:
-        raise ValueError("Too few valid points for robust fitting. Consider adjusting parameters.")
+        raise ValueError(
+            "Too few valid points for robust fitting. Consider adjusting parameters."
+        )
 
-    x = df.loc[valid, 'frame'].values.reshape(-1, 1)
-    y = np.log(df.loc[valid, 'radius'].values - c_est)
+    x = df.loc[valid, "frame"].values.reshape(-1, 1)
+    y = np.log(df.loc[valid, "radius"].values - c_est)
 
-    ransac = RANSACRegressor(estimator=LinearRegression(), residual_threshold=ransac_threshold, max_trials=1000)
+    ransac = RANSACRegressor(
+        estimator=LinearRegression(),
+        residual_threshold=ransac_threshold,
+        max_trials=1000,
+    )
     ransac.fit(x, y)
 
     slope = -ransac.estimator_.coef_[0]
     intercept = ransac.estimator_.intercept_
     a_est = np.exp(intercept)
 
-    full_x = df['frame'].values
+    full_x = df["frame"].values
     fitted = decreasing_func(full_x, a_est, slope, c_est)
-    df['radius'] = np.round(fitted).astype(int)
+    df["radius"] = np.round(fitted).astype(int)
 
     return df
+
 
 def process_video(input_video, output_video, df_adjusted):
     """
@@ -88,31 +100,42 @@ def process_video(input_video, output_video, df_adjusted):
 
     print(f"Output video saved at: {output_video}")
 
+
 # ==============================================================================
 #                              RADIUS PROCESSING
 # ==============================================================================
 
 
-def process_coordinates_final(input_video, input_csv, transformed_csv, output_csv, output_video):
+def process_coordinates_final(
+    input_video, input_csv, transformed_csv, output_csv, output_video
+):
     """
     Process the radius data from the input CSV file and save the cleaned data to the output CSV file.
     """
     df_transformed = pd.read_csv(transformed_csv)
     df_original = pd.read_csv(input_csv)
 
-    df_merged = pd.merge(df_transformed, df_original[['frame', 'radius']], on='frame', how='left')
-
-    processed_df = process_radius(df_merged, median_window=5, quantile_baseline=0.001, ransac_threshold=0.1)
-
-    processed_df['y'] = processed_df.apply(
-        lambda row: row['y'] - row['radius'] if pd.notna(row['y']) and pd.notna(row['radius']) else row['y'],
-        axis=1
+    df_merged = pd.merge(
+        df_transformed, df_original[["frame", "radius"]], on="frame", how="left"
     )
 
-    for col in ['x', 'y', 'radius']:
-        processed_df[col] = pd.to_numeric(processed_df[col], errors='coerce').dropna().astype(int)
+    processed_df = process_radius(
+        df_merged, median_window=5, quantile_baseline=0.001, ransac_threshold=0.1
+    )
 
-    df_output = processed_df[['frame', 'x', 'y', 'radius']]
+    processed_df["y"] = processed_df.apply(
+        lambda row: row["y"] - row["radius"]
+        if pd.notna(row["y"]) and pd.notna(row["radius"])
+        else row["y"],
+        axis=1,
+    )
+
+    for col in ["x", "y", "radius"]:
+        processed_df[col] = (
+            pd.to_numeric(processed_df[col], errors="coerce").dropna().astype(int)
+        )
+
+    df_output = processed_df[["frame", "x", "y", "radius"]]
     df_output.to_csv(output_csv, index=False)
 
     print(f"Adjusted positions saved to: {output_csv}")

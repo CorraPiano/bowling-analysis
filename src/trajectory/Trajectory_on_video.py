@@ -2,11 +2,11 @@ import cv2
 import csv
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
 # ==============================================================================
 #                              AUXILIARY FUNCTIONS
 # ==============================================================================
+
 
 def load_video(path: str):
     """
@@ -40,7 +40,7 @@ def create_video_writer(path: str, width: int, height: int, fps: int):
     Returns:
         out: OpenCV VideoWriter object.
     """
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     return cv2.VideoWriter(path, fourcc, fps, (width, height))
 
 
@@ -54,20 +54,20 @@ def load_lane_homographies(csv_path: str, width: int = 106, height: int = 1829):
     homographies = {}
 
     for _, row in lane_points.iterrows():
-        frame = int(row['Frame'])
-        pts_src = np.array([
-            [row['bottom_left_x'], row['bottom_left_y']],
-            [row['bottom_right_x'], row['bottom_right_y']],
-            [row['up_right_x'], row['up_right_y']],
-            [row['up_left_x'], row['up_left_y']]
-        ], dtype=np.float32)
+        frame = int(row["Frame"])
+        pts_src = np.array(
+            [
+                [row["bottom_left_x"], row["bottom_left_y"]],
+                [row["bottom_right_x"], row["bottom_right_y"]],
+                [row["up_right_x"], row["up_right_y"]],
+                [row["up_left_x"], row["up_left_y"]],
+            ],
+            dtype=np.float32,
+        )
 
-        pts_dst = np.array([
-            [0, height],
-            [width, height],
-            [width, 0],
-            [0, 0]
-        ], dtype=np.float32)
+        pts_dst = np.array(
+            [[0, height], [width, height], [width, 0], [0, 0]], dtype=np.float32
+        )
 
         H, _ = cv2.findHomography(pts_dst, pts_src)
         if H is not None:
@@ -83,7 +83,7 @@ def load_positions(csv_path: str):
         A dictionary with frame numbers as keys and (x, y) tuples as values.
     """
     positions = {}
-    with open(csv_path, mode='r') as file:
+    with open(csv_path, mode="r") as file:
         reader = csv.reader(file)
         next(reader)  # Skip header
         for coord in reader:
@@ -119,11 +119,19 @@ def draw_trajectory(cap, out, positions, homographies):
         if frame_count in homographies:
             H = homographies[frame_count]
             for x, y in trajectory:
-                transformed = cv2.perspectiveTransform(np.array([[[x, y]]], dtype=np.float32), H)[0][0]
+                transformed = cv2.perspectiveTransform(
+                    np.array([[[x, y]]], dtype=np.float32), H
+                )[0][0]
                 refreshed_trajectory.append((int(transformed[0]), int(transformed[1])))
 
         for i in range(1, len(refreshed_trajectory)):
-            cv2.line(frame, refreshed_trajectory[i - 1], refreshed_trajectory[i], (0, 0, 255), 2)
+            cv2.line(
+                frame,
+                refreshed_trajectory[i - 1],
+                refreshed_trajectory[i],
+                (0, 0, 255),
+                2,
+            )
 
         if refreshed_trajectory:
             x, y = refreshed_trajectory[-1]
@@ -141,17 +149,24 @@ def save_transformed_points(points, output_csv_path):
     """
     Save the transformed points to a CSV file.
     """
-    df = pd.DataFrame(points, columns=['frame', 'x', 'y'])
+    df = pd.DataFrame(points, columns=["frame", "x", "y"])
     df.to_csv(output_csv_path, index=False)
 
     print(f"Transformed coordinates have been saved to: {output_csv_path}")
+
 
 # ==============================================================================
 #                           PRINCIPAL FUNCTION
 # ==============================================================================
 
 
-def trajectory_on_video(input_video: str, transformed_csv: str, lane_csv: str, output_video: str, output_csv: str):
+def trajectory_on_video(
+    input_video: str,
+    transformed_csv: str,
+    lane_csv: str,
+    output_video: str,
+    output_csv: str,
+):
     """
     Main function to read a video, overlay a trajectory from a CSV file, and save the output.
     """

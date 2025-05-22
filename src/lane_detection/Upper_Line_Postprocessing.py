@@ -348,7 +348,10 @@ def postprocessing_upper_lines(
 
     return points_df
 
-''' draw one line on the frame'''
+
+""" draw one line on the frame"""
+
+
 def draw_line_on_frame(frame, line):
     # Create a copy of the original frame to draw the first line
     modified_frame = np.copy(frame)
@@ -365,19 +368,24 @@ def draw_line_on_frame(frame, line):
     # return the modified frame
     return modified_frame
 
-''' draw the lines on the frame'''
+
+""" draw the lines on the frame"""
+
+
 def draw_lines_on_frame(frame, lines):
     for i in range(len(lines)):
         frame = draw_line_on_frame(frame, lines[i])
     return frame
 
 
-''' Generate the video with the lines'''
+""" Generate the video with the lines"""
+
+
 def generate_video_lines(cap, output_path, points_df):
     # start the video from the begnning
     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Use 'mp4v' codec for MP4 format
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Use 'mp4v' codec for MP4 format
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -390,12 +398,32 @@ def generate_video_lines(cap, output_path, points_df):
         if not ret:
             break
 
-        # draw the lines on the frame   
+        # draw the lines on the frame
         lines = [
-            [points_df.iloc[frame_index]["bottom_left_x"], points_df.iloc[frame_index]["bottom_left_y"], points_df.iloc[frame_index]["bottom_right_x"], points_df.iloc[frame_index]["bottom_right_y"]],
-            [points_df.iloc[frame_index]["up_left_x"], points_df.iloc[frame_index]["up_left_y"], points_df.iloc[frame_index]["up_right_x"], points_df.iloc[frame_index]["up_right_y"]],
-            [points_df.iloc[frame_index]["bottom_left_x"], points_df.iloc[frame_index]["bottom_left_y"], points_df.iloc[frame_index]["up_left_x"], points_df.iloc[frame_index]["up_left_y"]],
-            [points_df.iloc[frame_index]["bottom_right_x"], points_df.iloc[frame_index]["bottom_right_y"], points_df.iloc[frame_index]["up_right_x"], points_df.iloc[frame_index]["up_right_y"]]
+            [
+                points_df.iloc[frame_index]["bottom_left_x"],
+                points_df.iloc[frame_index]["bottom_left_y"],
+                points_df.iloc[frame_index]["bottom_right_x"],
+                points_df.iloc[frame_index]["bottom_right_y"],
+            ],
+            [
+                points_df.iloc[frame_index]["up_left_x"],
+                points_df.iloc[frame_index]["up_left_y"],
+                points_df.iloc[frame_index]["up_right_x"],
+                points_df.iloc[frame_index]["up_right_y"],
+            ],
+            [
+                points_df.iloc[frame_index]["bottom_left_x"],
+                points_df.iloc[frame_index]["bottom_left_y"],
+                points_df.iloc[frame_index]["up_left_x"],
+                points_df.iloc[frame_index]["up_left_y"],
+            ],
+            [
+                points_df.iloc[frame_index]["bottom_right_x"],
+                points_df.iloc[frame_index]["bottom_right_y"],
+                points_df.iloc[frame_index]["up_right_x"],
+                points_df.iloc[frame_index]["up_right_y"],
+            ],
         ]
         modified_frame = draw_lines_on_frame(video_frame, lines)
 

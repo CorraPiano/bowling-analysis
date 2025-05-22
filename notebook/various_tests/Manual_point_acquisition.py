@@ -1,6 +1,4 @@
 import cv2
-from pathlib import Path
-import matplotlib.pyplot as plt
 
 # ==============================================================================
 #                          POINT ACQUISITION FUNCTION
@@ -8,6 +6,7 @@ import matplotlib.pyplot as plt
 
 # Global variable to store selected points
 points = []
+
 
 def on_mouse_click(event, x, y, flags, param):
     """
@@ -45,13 +44,13 @@ def process_frame_for_points(frame):
     print(f"Selected Points: {points}")
     return points
 
+
 # ==============================================================================
 #                                  MAIN FUNCTION
 # ==============================================================================
 
 if __name__ == "__main__":
-
-    '''
+    """
     PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
     INPUT_VIDEO_PATH = str(PROJECT_ROOT / "data" / "recording_2" / "Recording_2.mp4")
     cap = cv2.VideoCapture(INPUT_VIDEO_PATH)
@@ -59,5 +58,5 @@ if __name__ == "__main__":
     cap.set(cv2.CAP_PROP_POS_FRAMES, 1)
     ret, frame = cap.read()
     cap.release()
-    '''
+    """
     process_frame_for_points(frame)

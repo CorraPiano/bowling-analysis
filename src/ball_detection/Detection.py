@@ -168,7 +168,7 @@ def detect_circle_roi(preprocessed_img: np.ndarray, r_approx: int) -> np.ndarray
     Returns:
         np.ndarray | None: Detected circles or None if no circles are found.
     '''
-    min_radius = max(0, int(r_approx*0.89))
+    min_radius = max(0, int(r_approx*0.90))
     max_radius = int(r_approx*1.08)
     return cv2.HoughCircles(
         preprocessed_img,

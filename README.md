@@ -21,8 +21,6 @@ https://github.com/user-attachments/assets/69ed840a-b4c7-4e7b-ab15-2530a4a06a34
 
 https://github.com/user-attachments/assets/b03cc3f3-2def-4e3e-a547-c772e84172c6
 
-https://github.com/user-attachments/assets/3b4dc0fb-4a5a-48a5-af3c-7996ada6a4b6
-
 ## Techniques Used
 
 - Lines and ball detection using OpenCV
@@ -111,11 +109,11 @@ https://github.com/user-attachments/assets/3b4dc0fb-4a5a-48a5-af3c-7996ada6a4b6
 For questions, feedback, or collaboration, feel free to reach out:
 
 - **Davide Corradina**  
-  [davi.corra@libero.it](mailto:davi.corra@libero.it)  
+  Mail: [davi.corra@libero.it](mailto:davi.corra@libero.it)  
   GitHub: [CorraPiano](https://github.com/CorraPiano)
 
 - **Michele Fassini**  
-  [michele.fassini@icloud.com](mailto:michele.fassini@icloud.com)  
+  Mail: [michele.fassini@icloud.com](mailto:michele.fassini@icloud.com)  
   GitHub: [MicheleFassini](https://github.com/MicheleFassini)
 
 ## Mentions

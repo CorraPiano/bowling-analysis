@@ -42,8 +42,10 @@ https://github.com/user-attachments/assets/b03cc3f3-2def-4e3e-a547-c772e84172c6
 
 ├── documents/                     # Notes and reference materials
 │   ├── papers/                    # Research papers
+│   ├── IACV_presentation.pdf      # Ppt Presentation
 │   ├── Links.txt                  # Useful links
-│   └── Notes.txt                  # Project notes
+│   ├── Notes.txt                  # Project notes
+│   └── Report_IACV_Bowling.pdf    # Project report
 
 ├── notebook/                      # Jupyter notebooks for analysis
 │   ├── ball_detection/            # Ball detection notebooks
@@ -76,8 +78,8 @@ https://github.com/user-attachments/assets/b03cc3f3-2def-4e3e-a547-c772e84172c6
 ```
 
 ## Documentation
-- [📘 Project Report](./data/documents/Report_IACV_Bowling.pdf)
-- [📊 Presentation](./data/documents/IACV_presentation.pdf)
+- [📘 Project Report](./documents/Report_IACV_Bowling.pdf)
+- [📊 Presentation](./documents/IACV_presentation.pdf)
 
 ## Hot to run
 1. Clone the repository:

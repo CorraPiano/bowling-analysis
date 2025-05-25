@@ -1,39 +1,3 @@
-
-TRAIETTORIA:
-- detection pista
-    ipotesi: si vede almeno all'inizio (aggiungere video con zoom)
-    soluzione: edge detection (canny), houghtransform; quando non si vede tutta ricostruire da dimensioni
-
-- ricostruzione pista:
-    ipotesi: si vedono i triangolini
-    solzione: stratified reconstruction + size reconstruction
-                con: l_inf da linee della pista e shape recontruction con i triangoli e linee della pista (dimensioni note)
-
-- camera calibration? non serve perchè facciamo le cose indipendentemente dalla posizione della camera? potrebbe non servire
-
-- detection palla
-    ipotesi: si vede sempre
-    soluzione: CNN o openCV (object detection)
-
-- traiettoria 
-    ipotesi: inizia da x metri e finisce al primo birillo
-    soluzione: prendere il centro e proiettarlo sulla pista 
-
-- capire quando la palla colpisce la pista
-    ipotesi: studio su a che distanza la palla tocca terra in media
-    soluzione: quando la palla va in giù non tocca terra, quando va in su calcoliamo da x metri in poi
-                (cambiamento di velocità vettore)
-
-SPIN:
-    ipotesi: texture particolare
-    soluzione: optical flow senza isolare la palla
-    note: se fatto con i buchi non è necesassio farlo ad ogni frame
-
-        {- capire come ruota da come cambia i disegno? approccio cv
-        a partire dalla palla isolata:
-        -- convertire l'immagine della palla stretchadola in modo che sia su una sfera per confrontare meglio le immagini
-        -- ricostruire tutta la palla prima}
-
 ________________________________________________________________________________________________________________
 
 INFORMAZIONI UTILI:

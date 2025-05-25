@@ -19,8 +19,6 @@ https://github.com/user-attachments/assets/90463700-498f-4987-9d5a-1572e3613d1d
 
 https://github.com/user-attachments/assets/69ed840a-b4c7-4e7b-ab15-2530a4a06a34
 
-https://github.com/user-attachments/assets/b03cc3f3-2def-4e3e-a547-c772e84172c6
-
 ## Techniques Used
 
 - Lines and ball detection using OpenCV
@@ -78,8 +76,8 @@ https://github.com/user-attachments/assets/b03cc3f3-2def-4e3e-a547-c772e84172c6
 ```
 
 ## Documentation
-- [📘 Project Report](./documents/Report_IACV_Bowling.pdf)
-- [📊 Presentation](./documents/IACV_presentation.pdf)
+- 📘 [Project Report](./documents/Report_IACV.pdf)
+- 📊 [Presentation](./documents/Presentation_IACV.pdf)
 
 ## Hot to run
 1. Clone the repository:

@@ -75,6 +75,10 @@ https://github.com/user-attachments/assets/b03cc3f3-2def-4e3e-a547-c772e84172c6
 └── requirements.txt               # Python dependencies
 ```
 
+## Documentation
+- [📘 Project Report](./data/documents/Report_IACV_Bowling.pdf)
+- [📊 Presentation](./data/documents/IACV_presentation.pdf)
+
 ## Hot to run
 1. Clone the repository:
    ```bash
